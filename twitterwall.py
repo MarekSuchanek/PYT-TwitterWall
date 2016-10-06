@@ -3,6 +3,8 @@ import time
 import base64
 import requests
 import click
+import signal
+import sys
 
 tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
 
@@ -63,7 +65,7 @@ def tweets_process(session, params):
 @click.option('--count', default=5, help='Number of initial tweets.')
 @click.option('--interval', default=10, help='Seconds to check new tweets.')
 def twitter_wall(config, expr, count, interval):
-    '''Simple Twitter Wall for loading desired tweets in CLI'''
+    """Simple Twitter Wall for loading desired tweets in CLI"""
     session = twitter_session(config)
     params = {'q': expr, 'count': count}
 
@@ -77,5 +79,12 @@ def twitter_wall(config, expr, count, interval):
         last_id = tweets_process(session, params)
 
 
+def signal_handler(sig, frame):
+    click.echo()
+    click.secho('Bye! See you soon...', fg='red', bold=True)
+    sys.exit(0)
+
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal_handler)
     twitter_wall()
