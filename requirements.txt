@@ -1,0 +1,5 @@
+# TwitterWall
+# pip install -r requirements.txt
+#================================
+click >= 6.6
+requests >= 2.10.0
