@@ -6,8 +6,9 @@ import click
 import signal
 import sys
 
-tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
+tweet_api_url = 'https://sapi.twitter.com/1.1/search/tweets.json'
 no_style = False
+timeout = 1
 
 
 def click_secho(text, bold=False, fg=None, bg=None, nl=True):
@@ -17,7 +18,6 @@ def click_secho(text, bold=False, fg=None, bg=None, nl=True):
         click.secho(text, bold=bold, fg=fg, bg=bg, nl=nl)
 
 
-# TODO: raise_for_status request fail (or other)
 def twitter_session(conf_file):
     config = configparser.ConfigParser()
     config.read(conf_file)
@@ -35,7 +35,9 @@ def twitter_session(conf_file):
 
     r = session.post('https://api.twitter.com/oauth2/token',
                      headers=headers,
-                     data={'grant_type': 'client_credentials'})
+                     data={'grant_type': 'client_credentials'},
+                     timeout=timeout)
+    r.raise_for_status()
 
     bearer_token = r.json()['access_token']
 
@@ -58,12 +60,13 @@ def print_tweet(tweet):
 
 
 def get_tweets(session, params):
-    r = session.get(tweet_api_url, params=params)
+    r = session.get(tweet_api_url, params=params, timeout=timeout)
+    r.raise_for_status()
     return reversed(r.json()['statuses'])
 
 
 def tweets_process(session, params, tfilter):
-    last_id = 0
+    last_id = params['since_id']
     for t in get_tweets(session, params):
         if t['id'] > last_id:
             last_id = t['id']
@@ -110,7 +113,7 @@ def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
               help='Expression to filter tweets.')
 @click.option('--count', '-n', default=5,
               help='Number of initial tweets.')
-@click.option('--interval', '-i', default=20,
+@click.option('--interval', '-i', default=10,
               help='Seconds to check new tweets.')
 @click.option('--lang', '-l', default=None, type=click.STRING,
               help='Language (ISO 639-1) code.')
@@ -137,12 +140,14 @@ def twitter_wall(config, query, count, interval, lang, no_retweet, retweets_min,
     global no_style
     no_style = no_swag
 
+    click.clear()
+    print('', end='', flush=True)
+
     session = twitter_session(config)
-    params = {'q': query, 'count': count}
+    params = {'q': query, 'count': count, 'since_id': 0}
     if lang is not None:
         params['lang'] = lang
 
-    click.clear()
     tf = build_filter(no_retweet, retweets_min, retweets_max, followers_min,
                       followers_max, set(author), set(blocked_author))
 
