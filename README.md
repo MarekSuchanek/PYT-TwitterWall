@@ -16,14 +16,19 @@ You need **Python 3.4+** to run this app and then there are two options
 (examples are for Linux systems, for Windows or OSX find appropriate 
 equivalents):
 
-1. system-wide environment:
+### Python environment
+
+:bulb: Check your `python3 --version` first, maybe you will need to use
+`python3.5` instead or update finally!
+
+#### System-wide environment:
 
 ```
 ../PYT-TwitterWall/ $ python3 -m pip -r requirements.txt
 ../PYT-TwitterWall/ $ python3 twitterwall.py
 ```
 
-2. virtual environment:
+#### Virtual environment:
 
 ```
 ../PYT-TwitterWall/ $ python3 -m venv env
@@ -35,8 +40,15 @@ equivalents):
 ../PYT-TwitterWall/ $ rm -r env
 ```
 
-_Note_: check your `python3` version first, maybe you will need to use
-`python3.5` instead or update finally!
+### Twitter API key
+
+You need to set-up your Twitter app on [apps.twitter.com](https://apps.twitter.com/) 
+and create configuration file containing API key & secret. Provided 
+`auth.example.cfg` serves as example of this configuration file. 
+
+:warning: :closed_lock_with_key: Never ever publish file with your Twitter 
+API key & secret! 
+
 
 ## Usage
 
@@ -48,5 +60,6 @@ Will be introduced soon! :turtle:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) 
+file for more details.
 
