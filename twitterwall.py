@@ -7,6 +7,14 @@ import signal
 import sys
 
 tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
+no_style = False
+
+
+def click_secho(text, bold=False, fg=None, bg=None, nl=True):
+    if no_style:
+        click.echo(text, nl=nl)
+    else:
+        click.secho(text, bold=bold, fg=fg, bg=bg, nl=nl)
 
 
 # TODO: raise_for_status request fail (or other)
@@ -42,8 +50,8 @@ def twitter_session(conf_file):
 # TODO: options + highlight hashtags & mentions
 def print_tweet(tweet):
     click.echo('## {}'.format(tweet['created_at']))
-    click.secho(tweet['user']['name'], bold=True, fg='blue', nl=False)
-    click.secho(' ({})'.format(tweet['user']['screen_name']),
+    click_secho(tweet['user']['name'], bold=True, fg='blue', nl=False)
+    click_secho(' ({})'.format(tweet['user']['screen_name']),
                 fg='blue', nl=False)
     click.echo(': '+tweet['text'])
     click.echo()
@@ -95,7 +103,6 @@ def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
     return tf
 
 
-# TODO: optional colors and printing options
 @click.command()
 @click.option('--config', '-c', default='auth.cfg',
               help='App config file path.')
@@ -121,10 +128,15 @@ def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
               help='Min number of followers.')
 @click.option('--followers-max', default=None, type=click.INT,
               help='Max number of followers.')
+@click.option('--no-swag', is_flag=True,
+              help='Don\'t style with colors and bold font on output.')
 def twitter_wall(config, query, count, interval, lang, no_retweet, retweets_min,
                  retweets_max, followers_min, followers_max, author,
-                 blocked_author):
+                 blocked_author, no_swag):
     """Simple Twitter Wall for loading desired tweets in CLI"""
+    global no_style
+    no_style = no_swag
+
     session = twitter_session(config)
     params = {'q': query, 'count': count}
     if lang is not None:
@@ -143,7 +155,7 @@ def twitter_wall(config, query, count, interval, lang, no_retweet, retweets_min,
 
 def signal_handler(sig, frame):
     click.echo()
-    click.secho('Bye! See you soon...', fg='red', bold=True)
+    click_secho('Bye! See you soon...', fg='red', bold=True)
     sys.exit(0)
 
 
