@@ -1,15 +1,22 @@
 import configparser
 import time
 import base64
+import datetime
 import requests
 import click
 import signal
 import sys
 
-tweet_api_url = 'https://sapi.twitter.com/1.1/search/tweets.json'
+tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
 no_style = False
 timeout = 1
-
+colors = {
+    'author': 'blue',
+    'bye': 'red',
+    'date': 'green',
+    'hashtag': 'magenta',
+    'mention': 'yellow'
+}
 
 def click_secho(text, bold=False, fg=None, bg=None, nl=True):
     if no_style:
@@ -49,13 +56,29 @@ def twitter_session(conf_file):
     return session
 
 
-# TODO: options + highlight hashtags & mentions
+def tweet_highlighter(tweet_text):
+    if no_style:
+        return tweet_text
+    words = tweet_text.split(' ')
+    for i, w in enumerate(words):
+        if w.startswith('#'):
+            words[i] = click.style(w, fg=colors['hashtag'], bold=True)
+        elif w.startswith('@'):
+            words[i] = click.style(w, fg=colors['mention'], bold=True)
+        elif w.startswith('http://') or w.startswith('https://'):
+            words[i] = click.style(w, underline=True)
+    return ' '.join(words)
+
+
+# TODO: tweet direct url?
 def print_tweet(tweet):
-    click.echo('## {}'.format(tweet['created_at']))
-    click_secho(tweet['user']['name'], bold=True, fg='blue', nl=False)
+    published = datetime.datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+    click_secho('{}'.format(published.strftime('%d/%m/%Y %H:%M:%S')), fg=colors['date'])
+    click_secho(tweet['user']['name'], bold=True, fg=colors['author'],
+                nl=False)
     click_secho(' ({})'.format(tweet['user']['screen_name']),
-                fg='blue', nl=False)
-    click.echo(': '+tweet['text'])
+                fg=colors['author'], nl=False)
+    click.echo(': {}'.format(tweet_highlighter(tweet['text'])))
     click.echo()
 
 
@@ -107,7 +130,7 @@ def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
 
 
 @click.command()
-@click.option('--config', '-c', default='auth.cfg',
+@click.option('--config', '-c', default='config/auth.cfg',
               help='App config file path.')
 @click.option('--query', '-q', prompt='Query',
               help='Expression to filter tweets.')
@@ -121,7 +144,7 @@ def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
               help='Nickname of tweet author (multiple).')
 @click.option('--blocked-author', '-b', multiple=True, type=click.STRING,
               help='Nickname of blocked tweet author (multiple).')
-@click.option('--no-retweet', is_flag=True,
+@click.option('--no-retweets', is_flag=True,
               help='Don\'t print retweets.')
 @click.option('--retweets-min', default=0,
               help='Min number of retweets.')
@@ -133,7 +156,7 @@ def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
               help='Max number of followers.')
 @click.option('--no-swag', is_flag=True,
               help='Don\'t style with colors and bold font on output.')
-def twitter_wall(config, query, count, interval, lang, no_retweet, retweets_min,
+def twitter_wall(config, query, count, interval, lang, no_retweets, retweets_min,
                  retweets_max, followers_min, followers_max, author,
                  blocked_author, no_swag):
     """Simple Twitter Wall for loading desired tweets in CLI"""
@@ -144,11 +167,11 @@ def twitter_wall(config, query, count, interval, lang, no_retweet, retweets_min,
     print('', end='', flush=True)
 
     session = twitter_session(config)
-    params = {'q': query, 'count': count, 'since_id': 0}
+    params = {'q': query, 'count': count, 'since_id': 0, 'locale': 'cs_CZ'}
     if lang is not None:
         params['lang'] = lang
 
-    tf = build_filter(no_retweet, retweets_min, retweets_max, followers_min,
+    tf = build_filter(no_retweets, retweets_min, retweets_max, followers_min,
                       followers_max, set(author), set(blocked_author))
 
     params['since_id'] = tweets_process(session, params, tf)
@@ -160,7 +183,7 @@ def twitter_wall(config, query, count, interval, lang, no_retweet, retweets_min,
 
 def signal_handler(sig, frame):
     click.echo()
-    click_secho('Bye! See you soon...', fg='red', bold=True)
+    click_secho('Bye! See you soon...', fg=colors['bye'], bold=True)
     sys.exit(0)
 
 
