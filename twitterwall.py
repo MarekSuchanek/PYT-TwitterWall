@@ -1,13 +1,16 @@
 import configparser
 import time
 import base64
-import datetime
+from datetime import datetime
 import requests
 import click
 import signal
 import sys
 
+# Config, move to file in the future
 tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
+twitter_dformat = '%a %b %d %H:%M:%S +0000 %Y'
+cli_dformat = '%d/%m/%Y %H:%M:%S'
 no_style = False
 timeout = 1
 colors = {
@@ -18,6 +21,7 @@ colors = {
     'mention': 'yellow'
 }
 
+
 def click_secho(text, bold=False, fg=None, bg=None, nl=True):
     if no_style:
         click.echo(text, nl=nl)
@@ -26,6 +30,7 @@ def click_secho(text, bold=False, fg=None, bg=None, nl=True):
 
 
 def twitter_session(conf_file):
+    """Twitter session initiator, made by MI-PYT teachers"""
     config = configparser.ConfigParser()
     config.read(conf_file)
     api_key = config['twitter']['key']
@@ -70,10 +75,13 @@ def tweet_highlighter(tweet_text):
     return ' '.join(words)
 
 
-# TODO: tweet direct url?
 def print_tweet(tweet):
-    published = datetime.datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-    click_secho('{}'.format(published.strftime('%d/%m/%Y %H:%M:%S')), fg=colors['date'])
+    published = datetime.strptime(tweet['created_at'], twitter_dformat)
+    tweet_url = 'https://twitter.com/{}/statuses/{}'.\
+        format(tweet['user']['screen_name'], tweet['id'])
+    click_secho('{}'.format(published.strftime(cli_dformat)),
+                fg=colors['date'], nl=False)
+    click_secho(' ({})'.format(tweet_url), fg='magenta')
     click_secho(tweet['user']['name'], bold=True, fg=colors['author'],
                 nl=False)
     click_secho(' ({})'.format(tweet['user']['screen_name']),
@@ -156,9 +164,9 @@ def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
               help='Max number of followers.')
 @click.option('--no-swag', is_flag=True,
               help='Don\'t style with colors and bold font on output.')
-def twitter_wall(config, query, count, interval, lang, no_retweets, retweets_min,
-                 retweets_max, followers_min, followers_max, author,
-                 blocked_author, no_swag):
+def twitter_wall(config, query, count, interval, lang, no_retweets,
+                 retweets_min, retweets_max, followers_min, followers_max,
+                 author, blocked_author, no_swag):
     """Simple Twitter Wall for loading desired tweets in CLI"""
     global no_style
     no_style = no_swag
