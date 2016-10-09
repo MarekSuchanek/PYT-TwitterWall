@@ -92,7 +92,7 @@ check every 1 second, load 20 tweets at start and don't use any
 CLI output styling at all:
 
 ```
-python twitterwall.py -q "#python" -i 1 -n 20 --no-swag
+python twitterwall.py -q "swag" -i 1 -n 20 --no-swag
 ```
 
 Filter loaded tweets with word **python** by allowing only authors **hroncok** 
@@ -117,7 +117,7 @@ python twitterwall.py -q "python" -b "hroncok" -b "encukou"
 
 Filter loaded tweets with word **python** by allowing only tweets with 
 number of retweets between 10 and 100 and from authors that have at least
-300 followers but not less than 3000:
+300 followers but also less than 3000:
 
 ```
 python twitterwall.py -q "python" --retweets-min 10 --retweets-max 100 \
@@ -131,7 +131,7 @@ python twitterwall.py -q "python" --retweets-min 10 --retweets-max 100 \
 Python Trending [pythontrending]: MI-PYT - Materiály k předmětu MI-PYT na FIT ČVUT https://t.co/ZYdDaPT58n
 ```
 
-  * _NOTE_: Time is always in UTC (as given from Twitter API, just reformatted)!
+  * _NOTE_: Time is always in UTC timezone (as given from Twitter API, just reformatted)!
 
 ## Authors
 
