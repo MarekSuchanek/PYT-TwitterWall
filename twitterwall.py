@@ -69,11 +69,17 @@ class Tweet:
     def get_text(self):
         return self.data['text']
 
+    def get_nretweets(self):
+        return self.data['retweet_count']
+
     def get_author_name(self):
         return self.data['user']['name']
 
     def get_author_nick(self):
         return self.data['user']['screen_name']
+
+    def get_nfollows(self):
+        return self.data['user']['followers_count']
 
     def get_created(self):
         return datetime.strptime(self.data['created_at'],
@@ -83,12 +89,16 @@ class Tweet:
         return 'https://twitter.com/{}/statuses/{}'.\
             format(self.get_author_nick(), self.get_id())
 
+    def is_retweet(self):
+        return 'retweeted_status' in self.data
+
 
 class CLIWall:
     dformat = '%d/%m/%Y %H:%M:%S'
 
     def __init__(self):
-        pass
+        click.clear()
+        print('', end='', flush=True)
 
     def print_tweet(self, tweet):
         click.echo('{}'.format(tweet.get_created().strftime(self.dformat)),
@@ -112,6 +122,9 @@ class CLIColorfulWall(CLIWall):
         'hashtag': 'magenta',
         'mention': 'yellow'
     }
+
+    def __init__(self):
+        super().__init__()
 
     def print_tweet(self, tweet):
         click.secho('{}'.format(tweet.get_created().strftime(self.dformat)),
@@ -140,45 +153,68 @@ class CLIColorfulWall(CLIWall):
         click.secho(text, fg=self.colors['bye'], bold=True)
 
 
-def tweets_process(twitter, wall, params, tfilter):
-    last_id = params['since_id']
-    for t in twitter.get_tweets(params):
-        if t.get_id() > last_id:
-            last_id = t.get_id()
-        if tweet_filter(t, tfilter):
-            wall.print_tweet(t)
-    return last_id
+class TweetReader:
 
+    def __init__(self, twitter, query, lang):
+        global wall
+        self.twitter = twitter
+        self.wall = wall
+        self.params = {'q': query, 'since_id': 0}
+        self.tf = {}
+        if lang is not None:
+            self.params['lang'] = lang
 
-def tweet_filter(tweet, tfilter):
-    for rule in tfilter:
-        if not tfilter[rule](tweet):
-            return False
-    return True
+    def setup_filter(self, no_rt, rt_min, rt_max, f_min,
+                     f_max, authors, bauthors):
+        self.tf = {}
+        if no_rt:
+            self.tf['rt'] = lambda t: not t.is_retweet()
 
+        if rt_max is not None:
+            self.tf['rt_count'] = lambda t: rt_min < t.get_nretweets() < rt_max
+        elif rt_min > 0:
+            self.tf['rt_count'] = lambda t: rt_min < t.get_nretweets()
 
-def build_filter(no_rt, rt_min, rt_max, f_min, f_max, authors, bauthors):
-    tf = {}
-    if no_rt:
-        tf['rt'] = lambda t: 'retweeted_status' not in t
+        if f_max is not None:
+            self.tf['user_f'] = lambda t: f_min < t.get_nfollows() < f_max
+        elif f_min > 0:
+            self.tf['user_f'] = lambda t: f_min < t.get_nfollows()
 
-    if rt_max is not None:
-        tf['rt_count'] = lambda t: rt_min < t['retweet_count'] < rt_max
-    elif rt_min > 0:
-        tf['rt_count'] = lambda t: rt_min < t['retweet_count']
+        if len(authors) > 0:
+            self.tf['user_a'] = lambda t: t.get_author_nick() in authors
 
-    if f_max is not None:
-        tf['user_f'] = lambda t: f_min < t['user']['followers_count'] < f_max
-    elif f_min > 0:
-        tf['user_f'] = lambda t: f_min < t['user']['followers_count']
+        if len(bauthors) > 0:
+            self.tf['user_a'] = lambda t: t.get_author_nick() not in bauthors
 
-    if len(authors) > 0:
-        tf['user_a'] = lambda t: t['user']['screen_name'] in authors
+        return self.tf
 
-    if len(bauthors) > 0:
-        tf['user_a'] = lambda t: not t['user']['screen_name'] in bauthors
+    def process_n(self, n):
+        self.params['count'] = n
+        for t in self.twitter.get_tweets(self.params):
+            if t.get_id() > self.params['since_id']:
+                self.params['since_id'] = t.get_id()
+            if self.tweet_filter(t):
+                wall.print_tweet(t)
+        del self.params['count']
 
-    return tf
+    def process_periodic(self):
+        for t in self.twitter.get_tweets(self.params):
+            if t.get_id() > self.params['since_id']:
+                self.params['since_id'] = t.get_id()
+            if self.tweet_filter(t):
+                wall.print_tweet(t)
+
+    def tweet_filter(self, tweet):
+        for rule in self.tf:
+            if not self.tf[rule](tweet):
+                return False
+        return True
+
+    def run(self, init_cnt, interval):
+        self.process_n(init_cnt)
+        while True:
+            time.sleep(interval)
+            self.process_periodic()
 
 
 @click.command()
@@ -214,26 +250,16 @@ def twitter_wall(config, query, count, interval, lang, no_retweets,
     """Simple Twitter Wall for loading desired tweets in CLI"""
     global wall
     wall = CLIWall() if no_swag else CLIColorfulWall()
-    click.clear()
-    print('', end='', flush=True)
 
     authcfg = configparser.ConfigParser()
     authcfg.read(config)
     twitter = TwitterConnection(authcfg['twitter']['key'],
                                 authcfg['twitter']['secret'])
 
-    params = {'q': query, 'count': count, 'since_id': 0}
-    if lang is not None:
-        params['lang'] = lang
-
-    tf = build_filter(no_retweets, retweets_min, retweets_max, followers_min,
-                      followers_max, set(author), set(blocked_author))
-
-    params['since_id'] = tweets_process(twitter, wall, params, tf)
-    del params['count']
-    while True:
-        time.sleep(interval)
-        params['since_id'] = tweets_process(twitter, wall, params, tf)
+    tr = TweetReader(twitter, query, lang)
+    tr.setup_filter(no_retweets, retweets_min, retweets_max, followers_min,
+                    followers_max, set(author), set(blocked_author))
+    tr.run(count, interval)
 
 
 def signal_handler(sig, frame):
