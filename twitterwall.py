@@ -92,6 +92,19 @@ class Tweet:
     def is_retweet(self):
         return 'retweeted_status' in self.data
 
+    @staticmethod
+    def is_hashtag(word):
+        return word.startswith('#')
+
+    @staticmethod
+    def is_mention(word):
+        return word.startswith('@')
+
+    @staticmethod
+    def is_hyperref(word):
+        return word.startswith('https://') or \
+               word.startswith('http://')
+
 
 class CLIWall:
     dformat = '%d/%m/%Y %H:%M:%S'
@@ -105,7 +118,7 @@ class CLIWall:
                    nl=False)
         click.echo(' ({})'.format(tweet.get_url()))
         click.echo(tweet.get_author_name(), nl=False)
-        click.echo(' ({})'.format(tweet.get_author_nick()), nl=False)
+        click.echo(' [{}]'.format(tweet.get_author_nick()), nl=False)
         click.echo(': {}'.format(tweet.get_text()))
         click.echo()
 
@@ -132,7 +145,7 @@ class CLIColorfulWall(CLIWall):
         click.secho(' ({})'.format(tweet.get_url()), fg='magenta')
         click.secho(tweet.get_author_name(), bold=True,
                     fg=self.colors['author'], nl=False)
-        click.secho(' ({})'.format(tweet.get_author_nick()),
+        click.secho(' [{}]'.format(tweet.get_author_nick()),
                     fg=self.colors['author'], nl=False)
         click.echo(': {}'.format(self.tweet_highlighter(tweet.get_text())))
         click.echo()
@@ -140,11 +153,11 @@ class CLIColorfulWall(CLIWall):
     def tweet_highlighter(self, tweet_text):
         words = tweet_text.split(' ')
         for i, w in enumerate(words):
-            if w.startswith('#'):
+            if Tweet.is_hashtag(w):
                 words[i] = click.style(w, fg=self.colors['hashtag'], bold=True)
-            elif w.startswith('@'):
+            elif Tweet.is_mention(w):
                 words[i] = click.style(w, fg=self.colors['mention'], bold=True)
-            elif w.startswith('http://') or w.startswith('https://'):
+            elif Tweet.is_hyperref(w):
                 words[i] = click.style(w, underline=True)
         return ' '.join(words)
 
@@ -184,7 +197,7 @@ class TweetReader:
             self.tf['user_a'] = lambda t: t.get_author_nick() in authors
 
         if len(bauthors) > 0:
-            self.tf['user_a'] = lambda t: t.get_author_nick() not in bauthors
+            self.tf['user_b'] = lambda t: t.get_author_nick() not in bauthors
 
         return self.tf
 
@@ -219,7 +232,7 @@ class TweetReader:
 
 @click.command()
 @click.option('--config', '-c', default='config/auth.cfg',
-              help='App config file path.')
+              type=click.File('r'), help='App config file path.')
 @click.option('--query', '-q', prompt='Query',
               help='Expression to filter tweets.')
 @click.option('--count', '-n', default=5,
@@ -242,8 +255,9 @@ class TweetReader:
               help='Min number of followers.')
 @click.option('--followers-max', default=None, type=click.INT,
               help='Max number of followers.')
-@click.option('--no-swag', is_flag=True,
-              help='Don\'t style with colors and bold font on output.')
+@click.option('--no-swag', '-x', is_flag=True,
+              help='Don\'t style with colors and bold/underline on output.')
+@click.version_option(version='0.1', prog_name='TwitterWall CLI')
 def twitter_wall(config, query, count, interval, lang, no_retweets,
                  retweets_min, retweets_max, followers_min, followers_max,
                  author, blocked_author, no_swag):
@@ -252,7 +266,8 @@ def twitter_wall(config, query, count, interval, lang, no_retweets,
     wall = CLIWall() if no_swag else CLIColorfulWall()
 
     authcfg = configparser.ConfigParser()
-    authcfg.read(config)
+    authcfg.read_file(config)
+    config.close()
     twitter = TwitterConnection(authcfg['twitter']['key'],
                                 authcfg['twitter']['secret'])
 
