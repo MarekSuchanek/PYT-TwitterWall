@@ -7,17 +7,6 @@ import click
 import signal
 import sys
 
-# TODO: create CLI class for printing
-cli_dformat = '%d/%m/%Y %H:%M:%S'
-no_style = False
-colors = {
-    'author': 'blue',
-    'bye': 'red',
-    'date': 'green',
-    'hashtag': 'magenta',
-    'mention': 'yellow'
-}
-
 
 class TwitterConnection:
     tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
@@ -63,7 +52,7 @@ class TwitterConnection:
 
 class Tweet:
     """Twitter tweet data wrapper concentrating getters"""
-    twitter_dformat = '%a %b %d %H:%M:%S +0000 %Y'
+    dformat = '%a %b %d %H:%M:%S +0000 %Y'
 
     def __init__(self, jsondata):
         self.data = jsondata
@@ -88,53 +77,76 @@ class Tweet:
 
     def get_created(self):
         return datetime.strptime(self.data['created_at'],
-                                 self.twitter_dformat)
+                                 self.dformat)
 
     def get_url(self):
         return 'https://twitter.com/{}/statuses/{}'.\
             format(self.get_author_nick(), self.get_id())
 
 
-def click_secho(text, bold=False, fg=None, bg=None, nl=True):
-    if no_style:
-        click.echo(text, nl=nl)
-    else:
-        click.secho(text, bold=bold, fg=fg, bg=bg, nl=nl)
+class CLIWall:
+    dformat = '%d/%m/%Y %H:%M:%S'
+
+    def __init__(self):
+        pass
+
+    def print_tweet(self, tweet):
+        click.echo('{}'.format(tweet.get_created().strftime(self.dformat)),
+                   nl=False)
+        click.echo(' ({})'.format(tweet.get_url()))
+        click.echo(tweet.get_author_name(), nl=False)
+        click.echo(' ({})'.format(tweet.get_author_nick()), nl=False)
+        click.echo(': {}'.format(tweet.get_text()))
+        click.echo()
+
+    def print_bye(self, text):
+        click.echo()
+        click.echo(text)
 
 
-def tweet_highlighter(tweet_text):
-    if no_style:
-        return tweet_text
-    words = tweet_text.split(' ')
-    for i, w in enumerate(words):
-        if w.startswith('#'):
-            words[i] = click.style(w, fg=colors['hashtag'], bold=True)
-        elif w.startswith('@'):
-            words[i] = click.style(w, fg=colors['mention'], bold=True)
-        elif w.startswith('http://') or w.startswith('https://'):
-            words[i] = click.style(w, underline=True)
-    return ' '.join(words)
+class CLIColorfulWall(CLIWall):
+    colors = {
+        'author': 'blue',
+        'bye': 'red',
+        'date': 'green',
+        'hashtag': 'magenta',
+        'mention': 'yellow'
+    }
+
+    def print_tweet(self, tweet):
+        click.secho('{}'.format(tweet.get_created().strftime(self.dformat)),
+                    fg=self.colors['date'], nl=False)
+        click.secho(' ({})'.format(tweet.get_url()), fg='magenta')
+        click.secho(tweet.get_author_name(), bold=True,
+                    fg=self.colors['author'], nl=False)
+        click.secho(' ({})'.format(tweet.get_author_nick()),
+                    fg=self.colors['author'], nl=False)
+        click.echo(': {}'.format(self.tweet_highlighter(tweet.get_text())))
+        click.echo()
+
+    def tweet_highlighter(self, tweet_text):
+        words = tweet_text.split(' ')
+        for i, w in enumerate(words):
+            if w.startswith('#'):
+                words[i] = click.style(w, fg=self.colors['hashtag'], bold=True)
+            elif w.startswith('@'):
+                words[i] = click.style(w, fg=self.colors['mention'], bold=True)
+            elif w.startswith('http://') or w.startswith('https://'):
+                words[i] = click.style(w, underline=True)
+        return ' '.join(words)
+
+    def print_bye(self, text):
+        click.echo()
+        click.secho(text, fg=self.colors['bye'], bold=True)
 
 
-def print_tweet(tweet):
-    click_secho('{}'.format(tweet.get_created().strftime(cli_dformat)),
-                fg=colors['date'], nl=False)
-    click_secho(' ({})'.format(tweet.get_url()), fg='magenta')
-    click_secho(tweet.get_author_name(), bold=True, fg=colors['author'],
-                nl=False)
-    click_secho(' ({})'.format(tweet.get_author_nick()),
-                fg=colors['author'], nl=False)
-    click.echo(': {}'.format(tweet_highlighter(tweet.get_text())))
-    click.echo()
-
-
-def tweets_process(twitter, params, tfilter):
+def tweets_process(twitter, wall, params, tfilter):
     last_id = params['since_id']
     for t in twitter.get_tweets(params):
         if t.get_id() > last_id:
             last_id = t.get_id()
         if tweet_filter(t, tfilter):
-            print_tweet(t)
+            wall.print_tweet(t)
     return last_id
 
 
@@ -200,9 +212,8 @@ def twitter_wall(config, query, count, interval, lang, no_retweets,
                  retweets_min, retweets_max, followers_min, followers_max,
                  author, blocked_author, no_swag):
     """Simple Twitter Wall for loading desired tweets in CLI"""
-    global no_style
-    no_style = no_swag
-
+    global wall
+    wall = CLIWall() if no_swag else CLIColorfulWall()
     click.clear()
     print('', end='', flush=True)
 
@@ -218,16 +229,16 @@ def twitter_wall(config, query, count, interval, lang, no_retweets,
     tf = build_filter(no_retweets, retweets_min, retweets_max, followers_min,
                       followers_max, set(author), set(blocked_author))
 
-    params['since_id'] = tweets_process(twitter, params, tf)
+    params['since_id'] = tweets_process(twitter, wall, params, tf)
     del params['count']
     while True:
         time.sleep(interval)
-        params['since_id'] = tweets_process(twitter, params, tf)
+        params['since_id'] = tweets_process(twitter, wall, params, tf)
 
 
 def signal_handler(sig, frame):
-    click.echo()
-    click_secho('Bye! See you soon...', fg=colors['bye'], bold=True)
+    global wall
+    wall.print_bye('Bye! See you soon...')
     sys.exit(0)
 
 
