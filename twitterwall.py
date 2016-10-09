@@ -179,6 +179,8 @@ class TweetReader:
 
     def setup_filter(self, no_rt, rt_min, rt_max, f_min,
                      f_max, authors, bauthors):
+        authors = {a.lower() for a in authors}
+        bauthors = {ba.lower() for ba in bauthors}
         self.tf = {}
         if no_rt:
             self.tf['rt'] = lambda t: not t.is_retweet()
@@ -194,10 +196,12 @@ class TweetReader:
             self.tf['user_f'] = lambda t: f_min < t.get_nfollows()
 
         if len(authors) > 0:
-            self.tf['user_a'] = lambda t: t.get_author_nick() in authors
+            self.tf['user_a'] = \
+                lambda t: t.get_author_nick().lower() in authors
 
         if len(bauthors) > 0:
-            self.tf['user_b'] = lambda t: t.get_author_nick() not in bauthors
+            self.tf['user_b'] = \
+                lambda t: t.get_author_nick().lower() not in bauthors
 
         return self.tf
 
@@ -261,7 +265,7 @@ class TweetReader:
 def twitter_wall(config, query, count, interval, lang, no_retweets,
                  retweets_min, retweets_max, followers_min, followers_max,
                  author, blocked_author, no_swag):
-    """Simple Twitter Wall for loading desired tweets in CLI"""
+    """Simple Twitter Wall for loading and printing desired tweets in CLI"""
     global wall
     wall = CLIWall() if no_swag else CLIColorfulWall()
 
