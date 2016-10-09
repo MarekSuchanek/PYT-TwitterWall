@@ -7,12 +7,9 @@ import click
 import signal
 import sys
 
-# Config, move to file in the future
-tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
-twitter_dformat = '%a %b %d %H:%M:%S +0000 %Y'
+# TODO: create CLI class for printing
 cli_dformat = '%d/%m/%Y %H:%M:%S'
 no_style = False
-timeout = 1
 colors = {
     'author': 'blue',
     'bye': 'red',
@@ -22,43 +19,87 @@ colors = {
 }
 
 
+class TwitterConnection:
+    tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
+    timeout = 5
+
+    def __init__(self, api_key, api_secret):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.session = self.start_session()
+
+    def start_session(self):
+        session = requests.Session()
+        secret = '{}:{}'.format(self.api_key, self.api_secret)
+        secret64 = base64.b64encode(secret.encode('ascii')).decode('ascii')
+
+        headers = {
+            'Authorization': 'Basic {}'.format(secret64),
+            'Host': 'api.twitter.com',
+        }
+
+        r = session.post('https://api.twitter.com/oauth2/token',
+                         headers=headers,
+                         data={'grant_type': 'client_credentials'},
+                         timeout=self.timeout)
+        r.raise_for_status()
+
+        bearer_token = r.json()['access_token']
+
+        def bearer_auth(req):
+            req.headers['Authorization'] = 'Bearer ' + bearer_token
+            return req
+
+        session.auth = bearer_auth
+        return session
+
+    def get_tweets(self, params):
+        r = self.session.get(self.tweet_api_url,
+                             params=params,
+                             timeout=self.timeout)
+        r.raise_for_status()
+        return [Tweet(t) for t in reversed(r.json()['statuses'])]
+
+
+class Tweet:
+    """Twitter tweet data wrapper concentrating getters"""
+    twitter_dformat = '%a %b %d %H:%M:%S +0000 %Y'
+
+    def __init__(self, jsondata):
+        self.data = jsondata
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
+    def get_id(self):
+        return self.data['id']
+
+    def get_text(self):
+        return self.data['text']
+
+    def get_author_name(self):
+        return self.data['user']['name']
+
+    def get_author_nick(self):
+        return self.data['user']['screen_name']
+
+    def get_created(self):
+        return datetime.strptime(self.data['created_at'],
+                                 self.twitter_dformat)
+
+    def get_url(self):
+        return 'https://twitter.com/{}/statuses/{}'.\
+            format(self.get_author_nick(), self.get_id())
+
+
 def click_secho(text, bold=False, fg=None, bg=None, nl=True):
     if no_style:
         click.echo(text, nl=nl)
     else:
         click.secho(text, bold=bold, fg=fg, bg=bg, nl=nl)
-
-
-def twitter_session(conf_file):
-    """Twitter session initiator, made by MI-PYT teachers"""
-    config = configparser.ConfigParser()
-    config.read(conf_file)
-    api_key = config['twitter']['key']
-    api_secret = config['twitter']['secret']
-
-    session = requests.Session()
-    secret = '{}:{}'.format(api_key, api_secret)
-    secret64 = base64.b64encode(secret.encode('ascii')).decode('ascii')
-
-    headers = {
-        'Authorization': 'Basic {}'.format(secret64),
-        'Host': 'api.twitter.com',
-    }
-
-    r = session.post('https://api.twitter.com/oauth2/token',
-                     headers=headers,
-                     data={'grant_type': 'client_credentials'},
-                     timeout=timeout)
-    r.raise_for_status()
-
-    bearer_token = r.json()['access_token']
-
-    def bearer_auth(req):
-        req.headers['Authorization'] = 'Bearer ' + bearer_token
-        return req
-
-    session.auth = bearer_auth
-    return session
 
 
 def tweet_highlighter(tweet_text):
@@ -76,31 +117,22 @@ def tweet_highlighter(tweet_text):
 
 
 def print_tweet(tweet):
-    published = datetime.strptime(tweet['created_at'], twitter_dformat)
-    tweet_url = 'https://twitter.com/{}/statuses/{}'.\
-        format(tweet['user']['screen_name'], tweet['id'])
-    click_secho('{}'.format(published.strftime(cli_dformat)),
+    click_secho('{}'.format(tweet.get_created().strftime(cli_dformat)),
                 fg=colors['date'], nl=False)
-    click_secho(' ({})'.format(tweet_url), fg='magenta')
-    click_secho(tweet['user']['name'], bold=True, fg=colors['author'],
+    click_secho(' ({})'.format(tweet.get_url()), fg='magenta')
+    click_secho(tweet.get_author_name(), bold=True, fg=colors['author'],
                 nl=False)
-    click_secho(' ({})'.format(tweet['user']['screen_name']),
+    click_secho(' ({})'.format(tweet.get_author_nick()),
                 fg=colors['author'], nl=False)
-    click.echo(': {}'.format(tweet_highlighter(tweet['text'])))
+    click.echo(': {}'.format(tweet_highlighter(tweet.get_text())))
     click.echo()
 
 
-def get_tweets(session, params):
-    r = session.get(tweet_api_url, params=params, timeout=timeout)
-    r.raise_for_status()
-    return reversed(r.json()['statuses'])
-
-
-def tweets_process(session, params, tfilter):
+def tweets_process(twitter, params, tfilter):
     last_id = params['since_id']
-    for t in get_tweets(session, params):
-        if t['id'] > last_id:
-            last_id = t['id']
+    for t in twitter.get_tweets(params):
+        if t.get_id() > last_id:
+            last_id = t.get_id()
         if tweet_filter(t, tfilter):
             print_tweet(t)
     return last_id
@@ -174,19 +206,23 @@ def twitter_wall(config, query, count, interval, lang, no_retweets,
     click.clear()
     print('', end='', flush=True)
 
-    session = twitter_session(config)
-    params = {'q': query, 'count': count, 'since_id': 0, 'locale': 'cs_CZ'}
+    authcfg = configparser.ConfigParser()
+    authcfg.read(config)
+    twitter = TwitterConnection(authcfg['twitter']['key'],
+                                authcfg['twitter']['secret'])
+
+    params = {'q': query, 'count': count, 'since_id': 0}
     if lang is not None:
         params['lang'] = lang
 
     tf = build_filter(no_retweets, retweets_min, retweets_max, followers_min,
                       followers_max, set(author), set(blocked_author))
 
-    params['since_id'] = tweets_process(session, params, tf)
+    params['since_id'] = tweets_process(twitter, params, tf)
     del params['count']
     while True:
         time.sleep(interval)
-        params['since_id'] = tweets_process(session, params, tf)
+        params['since_id'] = tweets_process(twitter, params, tf)
 
 
 def signal_handler(sig, frame):
