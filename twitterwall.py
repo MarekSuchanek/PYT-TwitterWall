@@ -7,6 +7,8 @@ import click
 import signal
 import sys
 
+wall = None
+
 
 class TwitterConnection:
     tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
@@ -246,7 +248,7 @@ class TweetReader:
 @click.option('--lang', '-l', default=None, type=click.STRING,
               help='Language (ISO 639-1) code.')
 @click.option('--author', '-a', multiple=True, type=click.STRING,
-              help='Nickname of tweet author (multiple).')
+              help='Nickname of allowed tweet author (multiple).')
 @click.option('--blocked-author', '-b', multiple=True, type=click.STRING,
               help='Nickname of blocked tweet author (multiple).')
 @click.option('--no-retweets', is_flag=True,
@@ -259,15 +261,15 @@ class TweetReader:
               help='Min number of followers.')
 @click.option('--followers-max', default=None, type=click.INT,
               help='Max number of followers.')
-@click.option('--no-swag', '-x', is_flag=True,
-              help='Don\'t style with colors and bold/underline on output.')
+@click.option('--swag/--no-swag', is_flag=True, default=True,
+              help='Style (or not) with colors and bold/underline on output.')
 @click.version_option(version='0.1', prog_name='TwitterWall CLI')
 def twitter_wall(config, query, count, interval, lang, no_retweets,
                  retweets_min, retweets_max, followers_min, followers_max,
-                 author, blocked_author, no_swag):
+                 author, blocked_author, swag):
     """Simple Twitter Wall for loading and printing desired tweets in CLI"""
     global wall
-    wall = CLIWall() if no_swag else CLIColorfulWall()
+    wall = CLIColorfulWall() if swag else CLIWall()
 
     authcfg = configparser.ConfigParser()
     authcfg.read_file(config)
