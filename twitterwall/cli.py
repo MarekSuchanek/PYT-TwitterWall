@@ -3,6 +3,7 @@ import click
 import signal
 import sys
 from common import *
+from web import app
 
 wall = None
 twitter = None
@@ -122,10 +123,11 @@ def cli(query, count, interval, lang, no_retweets,
 
 
 @twitter_wall.command()
-def web():
+@click.option('--debug/--no-debug', is_flag=True, default=False)
+def web(debug):
     """Twitter Wall running as web server"""
     global twitter
-    print("Not implemented yet!")
+    app.run(debug=debug)
 
 
 def signal_handler(sig, frame):

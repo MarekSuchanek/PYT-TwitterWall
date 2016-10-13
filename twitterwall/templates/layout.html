@@ -1,0 +1,25 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="Marek Suchánek">
+        <title>TwitterWall</title>
+
+        <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+    <body class="container">
+        <header>
+            {% include 'navbar.html' %}
+        </header>
+        <main>
+            {% block body %}{% endblock %}
+        </main>
+        <footer class="footer-sticky">
+            <p class="text-muted"><a href="http://webdev.fit.cvut.cz/~suchama4/" target="_blank">Marek Suchánek</a> &copy; 2016 | MI-PYT @ FIT CTU</p>
+        </footer>
+    </body>
+</html>
