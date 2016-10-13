@@ -25,7 +25,7 @@ equivalents):
 
 ```
 ../PYT-TwitterWall/ $ python3 -m pip -r requirements.txt
-../PYT-TwitterWall/ $ python3 twitterwall.py
+../PYT-TwitterWall/ $ python3 twitterwall ...
 ```
 
 #### Virtual environment:
@@ -34,7 +34,7 @@ equivalents):
 ../PYT-TwitterWall/ $ python3 -m venv env
 ../PYT-TwitterWall/ $ . env/bin/activate
 (env) ../PYT-TwitterWall/ $ python3 -m pip -r requirements.txt
-(env) ../PYT-TwitterWall/ $ python3 twitterwall.py
+(env) ../PYT-TwitterWall/ $ python3 twitterwall ...
 
 (env) ../PYT-TwitterWall/ $ deactivate
 ../PYT-TwitterWall/ $ rm -r env
@@ -51,6 +51,8 @@ API key & secret!
 
 
 ## Usage
+
+### CLI
 
 TwitterWall CLI can be used simply. First you need config file with your
 API key & secret (default path is `config/auth.cfg`, can be set different
@@ -73,18 +75,18 @@ Moreover you can use:
 * `--help` to see all the options, syntax and information
 * `--version` to check the version of app
 
-### Examples
+#### Examples
 
 Show help how to use **TwitterWall**:
 
 ```
-python twitterwall.py --help
+python twitterwall cli --help
 ```
 
 Show only czech tweets (no retweets) with hashtag **#python**:
 
 ```
-python twitterwall.py -q "#python" --no-retweets --lang "cs"
+python twitterwall cli -q "#python" --no-retweets --lang "cs"
 ```
 
 Show only czech tweets (no retweets) with text **swag**, 
@@ -92,7 +94,7 @@ check every 1 second, load 20 tweets at start and don't use any
 CLI output styling at all:
 
 ```
-python twitterwall.py -q "swag" -i 1 -n 20 --no-swag
+python twitterwall cli -q "swag" -i 1 -n 20 --no-swag
 ```
 
 Filter loaded tweets with word **python** by allowing only authors **hroncok** 
@@ -102,8 +104,8 @@ and **EnCuKou** ([MI-PYT](https://github.com/cvut/MI-PYT) teachers):
 will be shown at the start, because are not in last 5 tweets containing word "python".
 
 ```
-python twitterwall.py -q "python" -a "hroncok" -a "EnCuKou"
-python twitterwall.py -q "python" -a "hroncok" -a "encukou"
+python twitterwall cli -q "python" -a "hroncok" -a "EnCuKou"
+python twitterwall cli -q "python" -a "hroncok" -a "encukou"
 ```
 
 Filter loaded tweets with word **python** by blocking authors **hroncok** 
@@ -111,8 +113,8 @@ and **EnCuKou** ([MI-PYT](https://github.com/cvut/MI-PYT) teachers), so it
 will hide all tweets by them:
 
 ```
-python twitterwall.py -q "python" -b "hroncok" -b "EnCuKou"
-python twitterwall.py -q "python" -b "hroncok" -b "encukou"
+python twitterwall cli -q "python" -b "hroncok" -b "EnCuKou"
+python twitterwall cli -q "python" -b "hroncok" -b "encukou"
 ```
 
 Filter loaded tweets with word **python** by allowing only tweets with 
@@ -120,11 +122,11 @@ number of retweets between 10 and 100 and from authors that have at least
 300 followers but also less than 3000:
 
 ```
-python twitterwall.py -q "python" --retweets-min 10 --retweets-max 100 \
-                      --followers-min 300 --followers-max 3000
+python twitterwall cli -q "python" --retweets-min 10 --retweets-max 100 \
+                       --followers-min 300 --followers-max 3000
 ```
 
-### Output sample
+#### Output sample
 
 ```
 05/10/2016 15:02:35 (https://twitter.com/pythontrending/statuses/783683809762050048)
@@ -132,6 +134,11 @@ Python Trending [pythontrending]: MI-PYT - Materiály k předmětu MI-PYT na FIT
 ```
 
   * _NOTE_: Time is always in UTC timezone (as given from Twitter API, just reformatted)!
+  
+### WEB
+
+More about web interface of Twitter Wall will be published soon! 
+Stay tuned! :scream:
 
 ## Authors
 
