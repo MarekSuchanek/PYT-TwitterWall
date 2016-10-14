@@ -2,5 +2,7 @@
 {% block body %}
     <h1>{{ query }}</h1>
     <hr>
-    {% include 'tweets.html' %}
+    <div id="wall">
+        {% include 'tweets.html' %}
+    </div>
 {% endblock %}

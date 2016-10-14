@@ -1,7 +1,25 @@
 $(document).ready(function () {
     var timer = null;
     function refreshAjax() {
-        alert('yolo');
+        var btn = $('#autorefresh');
+        var lid = encodeURIComponent(btn.data('lid'));
+        var query = encodeURIComponent(btn.data('query'));
+        var lang = encodeURIComponent(btn.data('lang'));
+        var url = 'http://'+window.location.host+'/api/'+lid+'/'+query;
+        if(lang) {
+            url += '/'+lang;
+        }
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                btn.data('lid', data.lid);
+                $('#wall').prepend(data.html);
+            },
+            error: function (request, status, error) {
+                //alert(request.responseText);
+            }
+        });
     }
 
     $('.details-btn').click(function () {
@@ -20,10 +38,8 @@ $(document).ready(function () {
     $('#autorefresh').click(function () {
        $(this).toggleClass('btn-refresh-off');
        $(this).toggleClass('btn-refresh-on');
-       alert('a');
        if(timer == null){
-           timer = setInterval(refreshAjax, 1000);
-           alert('timer setup');
+           timer = setInterval(refreshAjax, 2000);
        }else{
            clearInterval(timer);
            timer = null;

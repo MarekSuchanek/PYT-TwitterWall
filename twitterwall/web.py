@@ -1,6 +1,7 @@
 import flask
 import jinja2
 import configparser
+import json
 from common import *
 
 app = flask.Flask(__name__)
@@ -19,8 +20,9 @@ def feed(query, lang=''):
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
+    lid = tweets[0]['id']
     return flask.render_template('feed.html', query=query, lang=lang,
-                                 tweets=reversed(tweets))
+                                 tweets=reversed(tweets), lid=lid)
 
 
 @app.route('/api/<lid>/<query>')
@@ -30,7 +32,9 @@ def api(lid, query, lang=''):
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
-    return flask.render_template('tweets.html', tweets=reversed(tweets))
+    lid = tweets[0]['id']
+    html = flask.render_template('tweets.html', tweets=reversed(tweets))
+    return json.dumps({'lid':lid, 'html':html})
 
 
 @app.template_filter('author_avatar')
