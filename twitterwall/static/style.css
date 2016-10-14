@@ -1,3 +1,14 @@
+
+html,
+body {
+    margin:0;
+    padding:0;
+    height:100%;
+}
+main{
+    min-height:100%;
+    position:relative;
+}
 nav img {
     max-width: 2em;
     margin-top: -10px;
@@ -7,5 +18,42 @@ nav img {
 footer.footer-sticky {
     position:absolute;
     bottom:0;
+    text-align: right;
     height: 30px;
+}
+
+.tweet{
+    border-bottom: 0.1em solid #3B666B;
+    margin: 0.2em;
+    padding: 0.2em;
+    clear: both;
+}
+.tweet .avatar{
+    float: left;
+    margin: 0.2em;
+}
+.tweet p:after{
+    clear: both;
+}
+.tweet .entities{
+    clear: both;
+}
+.tweet .entities .pics img{
+    max-width: 10em;
+    max-height: 10em;
+    margin: 0.3em;
+    padding: 0.3em;
+    border: 1px solid #30799B;
+}
+.tweet .entities .pics img:focus{
+    border: 1px solid #11557C;
+}
+.hide {
+    display: none;
+}
+a#autorefresh.btn-refresh-off{
+    color: red;
+}
+a#autorefresh.btn-refresh-on{
+    color: green;
 }

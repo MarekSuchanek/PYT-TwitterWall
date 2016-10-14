@@ -2,31 +2,5 @@
 {% block body %}
     <h1>{{ query }}</h1>
     <hr>
-    {% for tweet in tweets %}
-      <div class="row">
-        <div>
-            <div>
-                {{ tweet|author_avatar }}
-            </div>
-            <div>
-                <span class="name">{{ tweet.get_author_name() }}</span>
-                <span class="screen_name">{{ tweet.get_author_nick()|author_link }}</span>
-                <span class="created">{{ tweet|tweet_date }}</span>
-            </div>
-            <p>{{ tweet|enhance_text }}</p>
-            <div>
-                Hastags:
-            </div>
-            <div>
-                Mentions:
-            </div>
-            <div>
-                Links:
-            </div>
-            <div>
-                GALLERY
-            </div>
-        </div>
-      </div>
-    {% endfor %}
+    {% include 'tweets.html' %}
 {% endblock %}

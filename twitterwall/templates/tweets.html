@@ -1,0 +1,30 @@
+{% for tweet in tweets %}
+<div class="tweet">
+    <div class="avatar">
+        {{ tweet|author_avatar }}
+        <br>
+        <button data-target="#details-{{ tweet['id'] }}" class="details-btn">Details</button>
+    </div>
+    <div class="info">
+        <span class="name">{{ tweet.get_author_name() }}</span>
+        <span class="screen_name">{{ tweet.get_author_nick()|author_link }}</span>
+        <span class="created">{{ tweet|tweet_date }}</span>
+    </div>
+    <p>{{ tweet|enhance_text }}</p>
+    <div class="entities hide" id="details-{{ tweet['id'] }}">
+        <div class="hashtags">
+            Hashtags: {{ tweet|hashtags }}
+        </div>
+        <div class="mentions">
+            Mentions: {{ tweet|mentions }}
+        </div>
+        <div class="links">
+            Links: {{ tweet|urls }}
+        </div>
+        <div class="pics">
+            {{ tweet|medias }}
+        </div>
+    </div>
+    <div style="clear: both;"></div>
+</div>
+{% endfor %}

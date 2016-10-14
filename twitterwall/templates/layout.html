@@ -10,16 +10,19 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
     </head>
-    <body class="container">
+    <body>
+        <main class="container">
         <header>
             {% include 'navbar.html' %}
         </header>
-        <main>
+        <div id="content">
             {% block body %}{% endblock %}
-        </main>
+        </div>
         <footer class="footer-sticky">
             <p class="text-muted"><a href="http://webdev.fit.cvut.cz/~suchama4/" target="_blank">Marek Suchánek</a> &copy; 2016 | MI-PYT @ FIT CTU</p>
         </footer>
+        </main>
     </body>
 </html>
