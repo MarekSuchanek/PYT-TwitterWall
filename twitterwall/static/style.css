@@ -21,7 +21,9 @@ footer.footer-sticky {
     text-align: right;
     height: 30px;
 }
-
+.details-btn{
+    width: 100%;
+}
 .tweet{
     border-bottom: 0.1em solid #3B666B;
     margin: 0.2em;

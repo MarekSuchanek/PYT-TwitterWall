@@ -3,7 +3,9 @@
     <div class="avatar">
         {{ tweet|author_avatar }}
         <br>
-        <button data-target="#details-{{ tweet['id'] }}" class="details-btn">Details</button>
+        <button data-target="#details-{{ tweet['id'] }}" class="details-btn btn btn-primary">
+            <span class="glyphicon glyphicon-chevron-down"></span>
+        </button>
     </div>
     <div class="info">
         <span class="name">{{ tweet.get_author_name() }}</span>

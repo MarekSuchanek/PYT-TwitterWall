@@ -13,8 +13,10 @@ $(document).ready(function () {
             url: url,
             dataType: 'json',
             success: function (data) {
-                btn.data('lid', data.lid);
-                $('#wall').prepend(data.html);
+                if(data.lid > lid) {
+                    btn.data('lid', data.lid);
+                    $('#wall').prepend(data.html);
+                }
             },
             error: function (request, status, error) {
                 //alert(request.responseText);
@@ -25,6 +27,9 @@ $(document).ready(function () {
     $('.details-btn').click(function () {
         var target = $(this).data('target');
         $(target).toggleClass('hide');
+        var gl = $(this).find('.glyphicon');
+        gl.toggleClass('glyphicon-chevron-down');
+        gl.toggleClass('glyphicon-chevron-up');
     });
     $('#query-btn').click(function () {
         var query = encodeURIComponent($('#query').val());
@@ -36,14 +41,20 @@ $(document).ready(function () {
         window.location.assign(url);
     });
     $('#autorefresh').click(function () {
-       $(this).toggleClass('btn-refresh-off');
-       $(this).toggleClass('btn-refresh-on');
-       if(timer == null){
-           timer = setInterval(refreshAjax, 2000);
-       }else{
-           clearInterval(timer);
-           timer = null;
-       }
+        $(this).toggleClass('btn-refresh-off');
+        $(this).toggleClass('btn-refresh-on');
+        var interval = $(this).data('interval')*1000;
+        alert(interval);
+        if(timer == null){
+            timer = setInterval(refreshAjax, interval);
+        }else{
+            clearInterval(timer);
+            timer = null;
+        }
+    });
+    $('#cleanup').click(function () {
+        $('#wall').empty();
+        $('#tweet-cnt').val(0);
     });
 
 });

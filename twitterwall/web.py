@@ -6,6 +6,7 @@ from common import *
 
 app = flask.Flask(__name__)
 twitter = None
+cfg = {}
 
 
 @app.route('/')
@@ -16,13 +17,14 @@ def index():
 @app.route('/q/<query>')
 @app.route('/q/<query>/<lang>')
 def feed(query, lang=''):
-    params = {'q': query, 'count': 10}
+    params = {'q': query, 'count': cfg['count']}
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
     lid = tweets[0]['id']
     return flask.render_template('feed.html', query=query, lang=lang,
-                                 tweets=reversed(tweets), lid=lid)
+                                 tweets=reversed(tweets), lid=lid,
+                                 interval=cfg['interval'], count=cfg['count'])
 
 
 @app.route('/api/<lid>/<query>')
@@ -138,8 +140,9 @@ def urls(tweet):
     return jinja2.Markup(', '.join(res))
 
 
-def start_web(debug, tw):
-    global twitter
+def start_web(debug, count, interval, tw):
+    global twitter, cfg
+    cfg = {'count': count, 'interval': interval}
     twitter = tw
     app.config['TEMPLATES_AUTO_RELOAD'] = debug
     app.run(debug=debug)
@@ -149,4 +152,4 @@ if __name__ == '__main__':
     authcfg.read('config/auth.cfg')
     twitter = TwitterConnection(authcfg['twitter']['key'],
                                 authcfg['twitter']['secret'])
-    start_web(True, twitter)
+    start_web(True, 5, 2, twitter)

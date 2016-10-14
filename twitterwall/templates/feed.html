@@ -1,8 +1,25 @@
 {% extends "layout.html" %}
 {% block body %}
-    <h1>{{ query }}</h1>
+    <h1>{{ query }} <small><span id="tweet-cnt">{{ count }}</span> tweets</small></h1>
     <hr>
     <div id="wall">
         {% include 'tweets.html' %}
     </div>
+{% endblock %}
+
+{% block navbar %}
+<li>
+    <a href="#" id="autorefresh" class="btn-refresh-off" data-query="{{ query }}"
+       data-lang="{{ lang }}" data-lid="{{ lid }}" data-interval="{{ interval }}">
+        <span class="glyphicon glyphicon-refresh"></span>
+    </a>
+</li>
+<li>
+    <a href="#" id="cleanup">
+        <span class="glyphicon glyphicon-trash"></span>
+    </a>
+</li>
+<li>
+    <a href="{{ url_for('feed', query=query, lang=lang) }}">Refresh</a>
+</li>
 {% endblock %}
