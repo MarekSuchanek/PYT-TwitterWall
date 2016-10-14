@@ -2,6 +2,7 @@ import time
 import base64
 from datetime import datetime
 import requests
+import abc
 
 
 class TwitterConnection:
@@ -100,66 +101,3 @@ class Tweet:
     def is_hyperref(word):
         return word.startswith('https://') or \
                word.startswith('http://')
-
-
-class TweetReader:
-
-    def __init__(self, twitter, wall, query, lang):
-        self.twitter = twitter
-        self.wall = wall
-        self.params = {'q': query, 'since_id': 0}
-        self.tf = {}
-        if lang is not None:
-            self.params['lang'] = lang
-
-    def setup_filter(self, no_rt, rt_min, rt_max, f_min,
-                     f_max, authors, bauthors):
-        authors = {a.lower() for a in authors}
-        bauthors = {ba.lower() for ba in bauthors}
-        self.tf = {}
-        if no_rt:
-            self.tf['rt'] = lambda t: not t.is_retweet()
-
-        if rt_max is not None:
-            self.tf['rt_count'] = lambda t: rt_min < t.get_nretweets() < rt_max
-        elif rt_min > 0:
-            self.tf['rt_count'] = lambda t: rt_min < t.get_nretweets()
-
-        if f_max is not None:
-            self.tf['user_f'] = lambda t: f_min < t.get_nfollows() < f_max
-        elif f_min > 0:
-            self.tf['user_f'] = lambda t: f_min < t.get_nfollows()
-
-        if len(authors) > 0:
-            self.tf['user_a'] = \
-                lambda t: t.get_author_nick().lower() in authors
-
-        if len(bauthors) > 0:
-            self.tf['user_b'] = \
-                lambda t: t.get_author_nick().lower() not in bauthors
-
-        return self.tf
-
-    def process_n(self, n):
-        self.params['count'] = n
-        self.process_periodic()
-        del self.params['count']
-
-    def process_periodic(self):
-        for t in self.twitter.get_tweets(self.params):
-            if t.get_id() > self.params['since_id']:
-                self.params['since_id'] = t.get_id()
-            if self.tweet_filter(t):
-                self.wall.print_tweet(t)
-
-    def tweet_filter(self, tweet):
-        for rule in self.tf:
-            if not self.tf[rule](tweet):
-                return False
-        return True
-
-    def run(self, init_cnt, interval):
-        self.process_n(init_cnt)
-        while True:
-            time.sleep(interval)
-            self.process_periodic()

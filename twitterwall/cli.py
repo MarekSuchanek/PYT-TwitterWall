@@ -3,10 +3,73 @@ import click
 import signal
 import sys
 from common import *
-from web import app
+from web import start_web
 
 wall = None
 twitter = None
+
+
+class TweetReader:
+
+    def __init__(self, twitter, wall, query, lang):
+        self.twitter = twitter
+        self.wall = wall
+        self.params = {'q': query, 'since_id': 0}
+        self.tf = {}
+        if lang is not None:
+            self.params['lang'] = lang
+
+    def setup_filter(self, no_rt, rt_min, rt_max, f_min,
+                     f_max, authors, bauthors):
+        authors = {a.lower() for a in authors}
+        bauthors = {ba.lower() for ba in bauthors}
+        self.tf = {}
+        if no_rt:
+            self.tf['rt'] = lambda t: not t.is_retweet()
+
+        if rt_max is not None:
+            self.tf['rt_count'] = lambda t: rt_min < t.get_nretweets() < rt_max
+        elif rt_min > 0:
+            self.tf['rt_count'] = lambda t: rt_min < t.get_nretweets()
+
+        if f_max is not None:
+            self.tf['user_f'] = lambda t: f_min < t.get_nfollows() < f_max
+        elif f_min > 0:
+            self.tf['user_f'] = lambda t: f_min < t.get_nfollows()
+
+        if len(authors) > 0:
+            self.tf['user_a'] = \
+                lambda t: t.get_author_nick().lower() in authors
+
+        if len(bauthors) > 0:
+            self.tf['user_b'] = \
+                lambda t: t.get_author_nick().lower() not in bauthors
+
+        return self.tf
+
+    def process_n(self, n):
+        self.params['count'] = n
+        self.process_periodic()
+        del self.params['count']
+
+    def process_periodic(self):
+        for t in self.twitter.get_tweets(self.params):
+            if t.get_id() > self.params['since_id']:
+                self.params['since_id'] = t.get_id()
+            if self.tweet_filter(t):
+                self.wall.print_tweet(t)
+
+    def tweet_filter(self, tweet):
+        for rule in self.tf:
+            if not self.tf[rule](tweet):
+                return False
+        return True
+
+    def run(self, init_cnt, interval):
+        self.process_n(init_cnt)
+        while True:
+            time.sleep(interval)
+            self.process_periodic()
 
 
 class CLIWall:
@@ -110,7 +173,7 @@ def twitter_wall(config):
 @click.version_option(version='0.1.1', prog_name='TwitterWall CLI')
 def cli(query, count, interval, lang, no_retweets,
         retweets_min, retweets_max, followers_min, followers_max,
-                 author, blocked_author, swag):
+        author, blocked_author, swag):
     """Twitter Wall running in CLI"""
     global wall, twitter
     wall = CLIColorfulWall() if swag else CLIWall()
@@ -127,7 +190,7 @@ def cli(query, count, interval, lang, no_retweets,
 def web(debug):
     """Twitter Wall running as web server"""
     global twitter
-    app.run(debug=debug)
+    start_web(debug, twitter)
 
 
 def signal_handler(sig, frame):
