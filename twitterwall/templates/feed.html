@@ -1,0 +1,33 @@
+{% from 'macros.html' import tweet_macro %}
+{% extends "layout.html" %}
+{% block body %}
+    <h1>{{ query }} <small><span id="tweet-cnt">{{ count }}</span> tweets</small></h1>
+    <hr>
+    <div id="wall">
+        {% for tweet in tweets %}
+            {{ tweet_macro(tweet) }}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block navbar %}
+<li>
+    <a href="#" id="autorefresh" class="btn-refresh-off" data-query="{{ query }}"
+       data-lang="{{ lang }}" data-lid="{{ lid }}" data-interval="{{ interval }}"
+       title="AJAX loading every {{ interval }} seconds (if green).">
+        <span class="glyphicon glyphicon-refresh"></span>
+    </a>
+</li>
+<li>
+    <a href="#" id="cleanup" title="Remove all tweets displayed.">
+        <span class="glyphicon glyphicon-trash"></span>
+    </a>
+</li>
+<li>
+    {% if lang == '' %}
+        <a href="{{ url_for('feed', query=query) }}" title="Full reload of page.">Refresh</a>
+    {% else %}
+        <a href="{{ url_for('feed', query=query, lang=lang) }}" title="Full reload of page.">Refresh</a>
+    {% endif %}
+</li>
+{% endblock %}

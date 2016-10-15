@@ -1,0 +1,33 @@
+{% macro tweet_macro(tweet) -%}
+<div class="tweet">
+    <div class="avatar">
+        {{ tweet|author_avatar }}
+        <br>
+        <button data-target="#details-{{ tweet['id'] }}" class="details-btn btn btn-primary">
+            <span class="glyphicon glyphicon-chevron-down"></span>
+        </button>
+    </div>
+    <div class="info">
+        <span class="name">{{ tweet.get_author_name() }}</span>
+        <span class="screen_name">{{ tweet.get_author_nick()|author_link }}</span>
+        <a href="https://twitter.com/{{ tweet.get_author_nick() }}/status/{{ tweet['id'] }}" class="created">{{ tweet|tweet_date }}</a>
+        <span class="id hide">{{ tweet['id'] }}</span>
+    </div>
+    <p>{{ tweet|enhance_text }}</p>
+    <div class="entities hide" id="details-{{ tweet['id'] }}">
+        <div class="hashtags">
+            Hashtags: {{ tweet|hashtags }}
+        </div>
+        <div class="mentions">
+            Mentions: {{ tweet|mentions }}
+        </div>
+        <div class="links">
+            Links: {{ tweet|urls }}
+        </div>
+        <div class="pics">
+            {{ tweet|medias }}
+        </div>
+    </div>
+    <div style="clear: both;"></div>
+</div>
+{%- endmacro %}
