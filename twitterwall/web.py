@@ -68,13 +68,17 @@ def hashtag_link(hashtag):
 
 
 @app.template_filter('media_img')
-def media_img(media):
+def media_img(media, author ,id):
     img = '<img src="{}" alt="{}" />'.format(
         media['media_url'],
         media['display_url']
     )
-    link = '<a href="{}" target="_blank">{}</a>'.format(
+    link = '<a href="{}" target="_blank" ' \
+           'data-lightbox="{}" data-title="@{} - {}">{}</a>'.format(
         media['media_url'],
+        id,
+        author,
+        media['display_url'],
         img
     )
     return jinja2.Markup(link)
@@ -122,7 +126,8 @@ def mentions(tweet):
 def medias(tweet):
     if 'media' not in tweet['entities']:
         return ''
-    res = [media_img(m) for m in tweet['entities']['media']]
+    res = [media_img(m, tweet.get_author_nick(), tweet['id'])
+           for m in tweet['entities']['media']]
     return jinja2.Markup(' '.join(res))
 
 
