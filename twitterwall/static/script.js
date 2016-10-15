@@ -39,7 +39,9 @@ $(document).ready(function () {
     }
 
     function bind_details_btn() {
-        $('.details-btn').click(function () {
+        var btns = $('.details-btn');
+        btns.unbind('click');
+        btns.click(function () {
             var target = $(this).data('target');
             $(target).toggleClass('hide');
             var gl = $(this).find('.glyphicon');
