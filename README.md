@@ -52,11 +52,16 @@ API key & secret!
 
 ## Usage
 
+First you need config file with your API key & secret (default path is `config/auth.cfg`, 
+can be set different via `--config` option:
+
+```
+python twitterwall --config <file> [web|cli] ...
+```
+
 ### CLI
 
-TwitterWall CLI can be used simply. First you need config file with your
-API key & secret (default path is `config/auth.cfg`, can be set different
-via `--config` option. Other options will allow you to:
+TwitterWall CLI can be used simply. Options will allow you to:
 
 * set the search query
 * set the count of initial tweets to show up (default is 5)
@@ -179,8 +184,7 @@ Start web interface with default values (5 tweets and 5 seconds), but turn on de
   * _NOTE_: Should not be used on production! :confounded:
 
 ```
-python twitterwall web --count 7 --interval 10
-python twitterwall web -n 7 -i 10
+python twitterwall web --debug
 ```
 
 #### Screenshots
