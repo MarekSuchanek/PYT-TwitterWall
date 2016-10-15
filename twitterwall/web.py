@@ -17,7 +17,7 @@ def index():
 @app.route('/q/<query>')
 @app.route('/q/<query>/<lang>')
 def feed(query, lang=''):
-    params = {'q': query, 'count': cfg['count']}
+    params = {'q': query, 'count': cfg['count'], 'include_entities': True}
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
@@ -30,7 +30,7 @@ def feed(query, lang=''):
 @app.route('/api/<lid>/<query>')
 @app.route('/api/<lid>/<query>/<lang>')
 def api(lid, query, lang=''):
-    params = {'q': query, 'since_id': lid}
+    params = {'q': query, 'since_id': lid, 'include_entities': True}
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
@@ -111,7 +111,7 @@ def hashtags(tweet):
 
 @app.template_filter('mentions')
 def mentions(tweet):
-    if 'mentions' not in tweet['entities']:
+    if 'user_mentions' not in tweet['entities']:
         return 'none'
     res = [author_link(m['screen_name']) for m in
            tweet['entities']['user_mentions']]
