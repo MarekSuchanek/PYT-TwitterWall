@@ -137,8 +137,65 @@ Python Trending [pythontrending]: MI-PYT - Materiály k předmětu MI-PYT na FIT
   
 ### WEB
 
-More about web interface of Twitter Wall will be published soon! 
-Stay tuned! :scream:
+WEB interface is made by [Flask](http://flask.pocoo.org) & [Jinja](http://jinja.pocoo.org). 
+It uses also [Twitter Bootstrap](http://getbootstrap.com), [jQuery](https://jquery.com)
+and [Lightbox](http://lokeshdhakar.com/projects/lightbox2/) (local files only, no CDN).
+
+Main ideas are same as for CLI interface. You just start web app with defined 
+(or default) count of initial tweets displayed and/or interval of loading next
+tweets via AJAX. You can also run in flask debugging mode. The query and language
+is set by user of web interface (by URL). 
+
+In the web interface user can moreover turn on/off AJAX loading, clear screen or 
+just refresh the page. For each tweet there is button for hide/show details that
+consists of entities: hashtags, mentions, links and photos. For nicer photos browsing
+is used Lightbox.
+
+#### Routes
+
+  * `/` = landing
+  * `/u/<query>[/<lang>]` = web interface for requested query in defined language
+  * `/api/<lid>/<query[/<lang>]` = API used by AJAX for loading additional tweets
+
+#### Web launch example
+
+Here is also `--help` as for the `cli` command: 
+
+```
+python twitterwall web --help
+```
+
+Start web interface with loading 7 tweets at start and 10 seconds interval of AJAX requests (when turned on by user). 
+
+  * _NOTE_: Minimal value of interval is defined as 3 seconds.
+  
+```
+python twitterwall web --count 7 --interval 10
+python twitterwall web -n 7 -i 10
+```
+
+Start web interface with default values (5 tweets and 5 seconds), but turn on debugging.
+
+  * _NOTE_: Should not be used on production! :confounded:
+
+```
+python twitterwall web --count 7 --interval 10
+python twitterwall web -n 7 -i 10
+```
+
+#### Screenshots
+
+Basic Twitter Wall with "@hroncok" query:
+
+![Basic tweets list with "@hroncok" query](http://marsu.9e.cz/github/twitterwall-basic.png)
+
+Tweets with "#photoshoot" query with one tweet details shown (2 hashtags, 1 mention, 0 links and 1 picture):
+
+![Tweets list with "#photoshoot" query with one tweet details shown ](http://marsu.9e.cz/github/twitterwall-details.png)
+
+Enlarged photo of cat (:smiley_cat:) via [Lightbox](http://lokeshdhakar.com/projects/lightbox2/):
+
+![Enlarged photo of cat via Lightbox](http://marsu.9e.cz/github/twitterwall-lightbox.png)
 
 ## Authors
 
