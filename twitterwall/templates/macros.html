@@ -1,4 +1,4 @@
-{% for tweet in tweets %}
+{% macro tweet_macro(tweet) -%}
 <div class="tweet">
     <div class="avatar">
         {{ tweet|author_avatar }}
@@ -10,7 +10,8 @@
     <div class="info">
         <span class="name">{{ tweet.get_author_name() }}</span>
         <span class="screen_name">{{ tweet.get_author_nick()|author_link }}</span>
-        <span class="created">{{ tweet|tweet_date }}</span>
+        <a href="https://twitter.com/{{ tweet.get_author_nick() }}/status/{{ tweet['id'] }}" class="created">{{ tweet|tweet_date }}</a>
+        <span class="id hide">{{ tweet['id'] }}</span>
     </div>
     <p>{{ tweet|enhance_text }}</p>
     <div class="entities hide" id="details-{{ tweet['id'] }}">
@@ -29,4 +30,4 @@
     </div>
     <div style="clear: both;"></div>
 </div>
-{% endfor %}
+{%- endmacro %}

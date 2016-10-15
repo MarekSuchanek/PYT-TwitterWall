@@ -1,9 +1,12 @@
+{% from 'macros.html' import tweet_macro %}
 {% extends "layout.html" %}
 {% block body %}
     <h1>{{ query }} <small><span id="tweet-cnt">{{ count }}</span> tweets</small></h1>
     <hr>
     <div id="wall">
-        {% include 'tweets.html' %}
+        {% for tweet in tweets %}
+            {{ tweet_macro(tweet) }}
+        {% endfor %}
     </div>
 {% endblock %}
 
@@ -20,6 +23,10 @@
     </a>
 </li>
 <li>
-    <a href="{{ url_for('feed', query=query, lang=lang) }}">Refresh</a>
+    {% if lang == '' %}
+        <a href="{{ url_for('feed', query=query) }}">Refresh</a>
+    {% else %}
+        <a href="{{ url_for('feed', query=query, lang=lang) }}">Refresh</a>
+    {% endif %}
 </li>
 {% endblock %}

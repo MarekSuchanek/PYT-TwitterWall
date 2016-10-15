@@ -21,10 +21,10 @@ def feed(query, lang=''):
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
-    lid = tweets[0]['id']
+    lid = 0 if len(tweets) == 0 else tweets[-1]['id']
     return flask.render_template('feed.html', query=query, lang=lang,
                                  tweets=reversed(tweets), lid=lid,
-                                 interval=cfg['interval'], count=cfg['count'])
+                                 interval=cfg['interval'], count=len(tweets))
 
 
 @app.route('/api/<lid>/<query>')
@@ -34,9 +34,10 @@ def api(lid, query, lang=''):
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
-    lid = tweets[0]['id']
-    html = flask.render_template('tweets.html', tweets=reversed(tweets))
-    return json.dumps({'lid':lid, 'html':html})
+    if len(tweets) > 0:
+        lid = tweets[-1]['id']
+    res = [flask.render_template('tweet.html', tweet=t) for t in tweets]
+    return json.dumps({'lid':lid, 'tweets': res})
 
 
 @app.template_filter('author_avatar')
@@ -152,4 +153,4 @@ if __name__ == '__main__':
     authcfg.read('config/auth.cfg')
     twitter = TwitterConnection(authcfg['twitter']['key'],
                                 authcfg['twitter']['secret'])
-    start_web(True, 5, 2, twitter)
+    start_web(True, 5, 3, twitter)

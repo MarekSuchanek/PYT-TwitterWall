@@ -188,13 +188,13 @@ def cli(query, count, interval, lang, no_retweets,
 @twitter_wall.command()
 @click.option('--debug/--no-debug', is_flag=True, default=False)
 @click.option('--count', '-n', default=5,
-              help='Number of tweets displayed without AJAX.')
+              help='Number of tweets displayed without AJAX (min 3s).')
 @click.option('--interval', '-i', default=5,
               help='Interval of loading by AJAX.')
 def web(debug, count, interval):
     """Twitter Wall running as web server"""
     global twitter
-    start_web(debug,count, interval, twitter)
+    start_web(debug, count, max(interval, 3), twitter)
 
 
 def signal_handler(sig, frame):
