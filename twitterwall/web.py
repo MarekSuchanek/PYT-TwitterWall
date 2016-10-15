@@ -86,12 +86,16 @@ def tweet_date(tweet):
 @app.template_filter('enhance_text')
 def enhance_text(tweet):
     words = tweet.get_text().split(' ')
+    chars = Tweet.username_chars()
     for i, w in enumerate(words):
         if Tweet.is_hashtag(w):
             words[i] = '<a href="{}" target="_blank">{}</a>'.format(
                 'https://twitter.com/hashtag/{}'.format(w[1:]), w)
         elif Tweet.is_mention(w):
-            words[i] = author_link(w[1:])
+            x = 1
+            while x < len(w) and w[x] in chars:
+                x += 1
+            words[i] = author_link(w[1:x]) + w[x:]
         elif Tweet.is_hyperref(w):
             words[i] = '<a href="{}" target="_blank">{}</a>'.format(w, w)
     return jinja2.Markup(' '.join(words))

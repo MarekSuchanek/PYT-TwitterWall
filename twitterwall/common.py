@@ -3,6 +3,7 @@ import base64
 from datetime import datetime
 import requests
 import abc
+import string
 
 
 class TwitterConnection:
@@ -101,3 +102,10 @@ class Tweet:
     def is_hyperref(word):
         return word.startswith('https://') or \
                word.startswith('http://')
+
+    @classmethod
+    def username_chars(cls):
+        chars = set(string.ascii_letters)
+        chars.update(string.digits)
+        chars.add('_')
+        return chars

@@ -1,6 +1,6 @@
 # Twitter Wall
 
-;[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) 
 ![Version](https://img.shields.io/badge/release-v0.2-orange.svg)
 
 
