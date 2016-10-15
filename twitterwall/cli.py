@@ -135,6 +135,7 @@ class CLIColorfulWall(CLIWall):
 @click.group()
 @click.option('--config', '-c', default='config/auth.cfg',
               type=click.File('r'), help='App config file path.')
+@click.version_option(version='0.2', prog_name='TwitterWall')
 def twitter_wall(config):
     """Twitter Wall for loading and printing desired tweets"""
     global twitter
@@ -170,7 +171,6 @@ def twitter_wall(config):
               help='Max number of followers.')
 @click.option('--swag/--no-swag', is_flag=True, default=True,
               help='Style (or not) with colors and bold/underline on output.')
-@click.version_option(version='0.1.1', prog_name='TwitterWall CLI')
 def cli(query, count, interval, lang, no_retweets,
         retweets_min, retweets_max, followers_min, followers_max,
         author, blocked_author, swag):

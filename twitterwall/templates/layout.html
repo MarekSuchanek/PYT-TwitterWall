@@ -23,7 +23,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                   </button>
-                  <a class="navbar-brand" href="#">
+                  <a class="navbar-brand" href="{{ url_for('index') }}">
                     <img alt="Brand" src="{{ url_for('static', filename='icon.png') }}"> Twitter Wall
                   </a>
                 </div>
@@ -48,7 +48,10 @@
             {% block body %}{% endblock %}
         </div>
         <footer class="footer-sticky">
-            <p class="text-muted"><a href="http://webdev.fit.cvut.cz/~suchama4/" target="_blank">Marek Suchánek</a> &copy; 2016 | MI-PYT @ FIT CTU</p>
+            <p class="text-muted">
+                <a href="http://webdev.fit.cvut.cz/~suchama4/" target="_blank">Marek Suchánek</a> &copy; 2016 |
+                <a href="https://github.com/cvut/MI-PYT" target="_blank">MI-PYT @ FIT CTU</a>
+            </p>
         </footer>
         </main>
 <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>

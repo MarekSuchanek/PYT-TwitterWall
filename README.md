@@ -1,6 +1,7 @@
 # Twitter Wall
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+;[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) 
+![Version](https://img.shields.io/badge/release-v0.2-orange.svg)
 
 
 Twitter Wall is simple [Python](https://www.python.org) powered app for 
@@ -52,7 +53,7 @@ API key & secret!
 
 ## Usage
 
-First you need config file with your API key & secret (default path is `config/auth.cfg`, 
+First you need config file with your API key & secret. Default path is `config/auth.cfg`, 
 can be set different via `--config` option:
 
 ```
@@ -156,10 +157,12 @@ just refresh the page. For each tweet there is button for hide/show details that
 consists of entities: hashtags, mentions, links and photos. For nicer photos browsing
 is used Lightbox.
 
+_Example_: [mareksuchanek.pythonanywhere.com](http://mareksuchanek.pythonanywhere.com/)
+
 #### Routes
 
   * `/` = landing
-  * `/u/<query>[/<lang>]` = web interface for requested query in defined language
+  * `/q/<query>[/<lang>]` = web interface for requested query in defined language
   * `/api/<lid>/<query[/<lang>]` = API used by AJAX for loading additional tweets
 
 #### Web launch example
@@ -189,15 +192,15 @@ python twitterwall web --debug
 
 #### Screenshots
 
-Basic Twitter Wall with "@hroncok" query:
+Basic Twitter Wall with **@hroncok** query:
 
 ![Basic tweets list with "@hroncok" query](http://marsu.9e.cz/github/twitterwall-basic.png)
 
-Tweets with "#photoshoot" query with one tweet details shown (2 hashtags, 1 mention, 0 links and 1 picture):
+Tweets with **#photoshoot** query with one tweet details shown (2 hashtags, 1 mention, 0 links and 1 picture):
 
 ![Tweets list with "#photoshoot" query with one tweet details shown ](http://marsu.9e.cz/github/twitterwall-details.png)
 
-Enlarged photo of cat (:smiley_cat:) via [Lightbox](http://lokeshdhakar.com/projects/lightbox2/):
+Enlarged photo of cat :smiley_cat: via [Lightbox](http://lokeshdhakar.com/projects/lightbox2/):
 
 ![Enlarged photo of cat via Lightbox](http://marsu.9e.cz/github/twitterwall-lightbox.png)
 

@@ -37,7 +37,7 @@ def api(lid, query, lang=''):
     if len(tweets) > 0:
         lid = tweets[-1]['id']
     res = [flask.render_template('tweet.html', tweet=t) for t in tweets]
-    return json.dumps({'lid':lid, 'tweets': res})
+    return json.dumps({'lid': lid, 'tweets': res})
 
 
 @app.template_filter('author_avatar')
@@ -68,19 +68,13 @@ def hashtag_link(hashtag):
 
 
 @app.template_filter('media_img')
-def media_img(media, author ,id):
+def media_img(media, author, id):
     img = '<img src="{}" alt="{}" />'.format(
-        media['media_url'],
-        media['display_url']
+        media['media_url'], media['display_url']
     )
     link = '<a href="{}" target="_blank" ' \
            'data-lightbox="{}" data-title="@{} - {}">{}</a>'.format(
-        media['media_url'],
-        id,
-        author,
-        media['display_url'],
-        img
-    )
+            media['media_url'], id, author, media['display_url'], img)
     return jinja2.Markup(link)
 
 
@@ -95,9 +89,7 @@ def enhance_text(tweet):
     for i, w in enumerate(words):
         if Tweet.is_hashtag(w):
             words[i] = '<a href="{}" target="_blank">{}</a>'.format(
-                'https://twitter.com/hashtag/{}'.format(w[1:]),
-                w
-            )
+                'https://twitter.com/hashtag/{}'.format(w[1:]), w)
         elif Tweet.is_mention(w):
             words[i] = author_link(w[1:])
         elif Tweet.is_hyperref(w):
@@ -152,6 +144,7 @@ def start_web(debug, count, interval, tw):
     twitter = tw
     app.config['TEMPLATES_AUTO_RELOAD'] = debug
     app.run(debug=debug)
+
 
 if __name__ == '__main__':
     authcfg = configparser.ConfigParser()
