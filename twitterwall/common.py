@@ -1,9 +1,6 @@
-import time
 import base64
 from datetime import datetime
 import requests
-import abc
-import string
 
 
 class TwitterConnection:
@@ -90,22 +87,5 @@ class Tweet:
     def is_retweet(self):
         return 'retweeted_status' in self.data
 
-    @staticmethod
-    def is_hashtag(word):
-        return word.startswith('#')
-
-    @staticmethod
-    def is_mention(word):
-        return word.startswith('@')
-
-    @staticmethod
-    def is_hyperref(word):
-        return word.startswith('https://') or \
-               word.startswith('http://')
-
-    @classmethod
-    def username_chars(cls):
-        chars = set(string.ascii_letters)
-        chars.update(string.digits)
-        chars.add('_')
-        return chars
+    def get_entities_of_type(self, type):
+        return self.data.get('entities', {}).get(type, [])

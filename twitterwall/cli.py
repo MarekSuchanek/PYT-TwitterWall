@@ -2,6 +2,7 @@ import configparser
 import click
 import signal
 import sys
+import time
 from common import *
 from web import start_web
 
@@ -113,23 +114,38 @@ class CLIColorfulWall(CLIWall):
                     fg=self.colors['author'], nl=False)
         click.secho(' [{}]'.format(tweet.get_author_nick()),
                     fg=self.colors['author'], nl=False)
-        click.echo(': {}'.format(self.tweet_highlighter(tweet.get_text())))
+        click.echo(': {}'.format(self.tweet_highlighter(tweet)))
         click.echo()
 
-    def tweet_highlighter(self, tweet_text):
-        words = tweet_text.split(' ')
-        chars = Tweet.username_chars()
-        for i, w in enumerate(words):
-            if Tweet.is_hashtag(w):
-                words[i] = click.style(w, fg=self.colors['hashtag'], bold=True)
-            elif Tweet.is_mention(w):
-                x = 1
-                while x < len(w) and w[x] in chars:
-                    x += 1
-                words[i] = click.style(w[0:x], fg=self.colors['mention'], bold=True) + w[x:]
-            elif Tweet.is_hyperref(w):
-                words[i] = click.style(w, underline=True)
-        return ' '.join(words)
+    def tweet_highlighter(self, tweet):
+        text = tweet.get_text()
+        result = ""
+        entities = []
+        for hashtag in tweet.get_entities_of_type('hashtags'):
+            entities.append(
+                (hashtag['indices'][0], hashtag['indices'][1],
+                 click.style('#'+hashtag['text'],
+                             fg=self.colors['hashtag'], bold=True))
+            )
+        for mention in tweet.get_entities_of_type('user_mentions'):
+            entities.append(
+                (mention['indices'][0], mention['indices'][1],
+                 click.style('@'+mention['screen_name'],
+                             fg=self.colors['mention'], bold=True))
+            )
+        for url in tweet.get_entities_of_type('urls'):
+            entities.append(
+                (url['indices'][0], url['indices'][1],
+                 click.style(url['url'], underline=True))
+            )
+        entities.sort(reverse=True)
+        index = 0
+        while len(entities) > 0:
+            act = entities.pop()
+            result += text[index:act[0]] + act[2]
+            index = act[1]
+        result += text[index:]
+        return result
 
     def print_bye(self, text):
         click.echo()

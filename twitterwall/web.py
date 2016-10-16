@@ -50,7 +50,7 @@ def author_avatar(tweet):
 
 
 @app.template_filter('author_link')
-def author_link(screen_name):
+def user_link(screen_name):
     return jinja2.Markup(
         '<a href="{}" target="_blank">@{}</a>'.format(
             'https://twitter.com/{}'.format(screen_name),
@@ -85,60 +85,66 @@ def tweet_date(tweet):
 
 @app.template_filter('enhance_text')
 def enhance_text(tweet):
-    words = tweet.get_text().split(' ')
-    chars = Tweet.username_chars()
-    for i, w in enumerate(words):
-        if Tweet.is_hashtag(w):
-            words[i] = '<a href="{}" target="_blank">{}</a>'.format(
-                'https://twitter.com/hashtag/{}'.format(w[1:]), w)
-        elif Tweet.is_mention(w):
-            x = 1
-            while x < len(w) and w[x] in chars:
-                x += 1
-            words[i] = author_link(w[1:x]) + w[x:]
-        elif Tweet.is_hyperref(w):
-            words[i] = '<a href="{}" target="_blank">{}</a>'.format(w, w)
-    return jinja2.Markup(' '.join(words))
+    text = tweet.get_text()
+    result = ""
+    entities = []
+    for hashtag in tweet.get_entities_of_type('hashtags'):
+        entities.append(
+            (hashtag['indices'][0], hashtag['indices'][1],
+             hashtag_link(hashtag['text']))
+        )
+    for mention in tweet.get_entities_of_type('user_mentions'):
+        entities.append(
+            (mention['indices'][0], mention['indices'][1],
+             user_link(mention['screen_name']))
+        )
+    for url in tweet.get_entities_of_type('urls'):
+        entities.append(
+            (url['indices'][0], url['indices'][1],
+             url_link(url))
+        )
+    entities.sort(reverse=True)
+    index = 0
+    while len(entities) > 0:
+        act = entities.pop()
+        result += text[index:act[0]] + act[2]
+        index = act[1]
+    result += text[index:]
+    return jinja2.Markup(result)
 
 
 @app.template_filter('hashtags')
 def hashtags(tweet):
-    if 'hashtags' not in tweet['entities']:
-        return 'none'
-    res = [hashtag_link(h['text']) for h in tweet['entities']['hashtags']]
+    res = [hashtag_link(h['text']) for h in
+           tweet.get_entities_of_type('hashtags')]
     return jinja2.Markup(', '.join(res))
 
 
 @app.template_filter('mentions')
 def mentions(tweet):
-    if 'user_mentions' not in tweet['entities']:
-        return 'none'
-    res = [author_link(m['screen_name']) for m in
-           tweet['entities']['user_mentions']]
+    res = [user_link(m['screen_name']) for m in
+           tweet.get_entities_of_type('user_mentions')]
     return jinja2.Markup(', '.join(res))
 
 
 @app.template_filter('medias')
 def medias(tweet):
-    if 'media' not in tweet['entities']:
-        return ''
     res = [media_img(m, tweet.get_author_nick(), tweet['id'])
-           for m in tweet['entities']['media']]
+           for m in tweet.get_entities_of_type('medias')]
     return jinja2.Markup(' '.join(res))
 
 
-def make_url_link(url):
-    return '<a href="{}" target="_blank">{}</a>'.format(
+@app.template_filter('url_link')
+def url_link(url):
+    return jinja2.Markup('<a href="{}" target="_blank">{}</a>'.format(
         url['url'],
         url['display_url']
-    )
+    ))
 
 
 @app.template_filter('urls')
 def urls(tweet):
-    if 'urls' not in tweet['entities']:
-        return 'none'
-    res = [make_url_link(u) for u in tweet['entities']['urls']]
+    res = [url_link(u) for u in tweet.get_entities_of_type('urls')]
     return jinja2.Markup(', '.join(res))
 
 
