@@ -107,10 +107,10 @@ def enhance_text(tweet):
     index = 0
     while len(entities) > 0:
         act = entities.pop()
-        result += text[index:act[0]] + act[2]
+        result += jinja2.Markup(text[index:act[0]]) + act[2]
         index = act[1]
-    result += text[index:]
-    return jinja2.Markup(result)
+    result += jinja2.Markup(text[index:])
+    return result
 
 
 @app.template_filter('hashtags')
@@ -130,7 +130,7 @@ def mentions(tweet):
 @app.template_filter('medias')
 def medias(tweet):
     res = [media_img(m, tweet.get_author_nick(), tweet['id'])
-           for m in tweet.get_entities_of_type('medias')]
+           for m in tweet.get_entities_of_type('media')]
     return jinja2.Markup(' '.join(res))
 
 
