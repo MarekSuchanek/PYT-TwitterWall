@@ -118,11 +118,15 @@ class CLIColorfulWall(CLIWall):
 
     def tweet_highlighter(self, tweet_text):
         words = tweet_text.split(' ')
+        chars = Tweet.username_chars()
         for i, w in enumerate(words):
             if Tweet.is_hashtag(w):
                 words[i] = click.style(w, fg=self.colors['hashtag'], bold=True)
             elif Tweet.is_mention(w):
-                words[i] = click.style(w, fg=self.colors['mention'], bold=True)
+                x = 1
+                while x < len(w) and w[x] in chars:
+                    x += 1
+                words[i] = click.style(w[0:x], fg=self.colors['mention'], bold=True) + w[x:]
             elif Tweet.is_hyperref(w):
                 words[i] = click.style(w, underline=True)
         return ' '.join(words)
