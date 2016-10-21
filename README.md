@@ -1,7 +1,7 @@
 # Twitter Wall
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) 
-![Version](https://img.shields.io/badge/release-v0.2-orange.svg)
+![Version](https://img.shields.io/badge/release-v0.3-orange.svg)
 
 
 Twitter Wall is simple [Python](https://www.python.org) powered app for 
@@ -40,6 +40,35 @@ equivalents):
 (env) ../PYT-TwitterWall/ $ deactivate
 ../PYT-TwitterWall/ $ rm -r env
 ```
+
+### setup.py
+
+You can use standard `setup.py` file to install the package, after 
+installation you can run Twitter Wall by just `twitterwall` or as
+Python module `python3 -m twitterwall` (again watch you Python version). 
+Installation can be done system-wide or just in virtual environment.
+
+```
+python3 setup.py install
+
+twitterwall ...
+python3 -m twitterwall ...
+```
+
+### PyPi (testing)
+
+You can use pip (and the Test PyPi) to install package **twitterwall**:
+
+```
+pip install --extra-index-url https://testpypi.python.org/pypi twitterwall
+```
+
+__NOTE__: You can not use only the `-i`, because some of the required 
+packages are not in the Test PyPi.
+
+Again you can run this command system-wide (watch you Python version) or
+setup virtual environment first.
+
 
 ### Twitter API key
 
