@@ -25,6 +25,11 @@ setup(
             'templates/*.html'
         ]
     },
+    entry_points={
+        'console_scripts': [
+            'twitterwall = twitterwall.cli:twitter_wall',
+        ],
+    },
     install_requires=[
         'Flask>=0.10.0',
         'Jinja2>=2.6',
