@@ -124,13 +124,13 @@ Moreover you can use:
 Show help how to use **TwitterWall**:
 
 ```
-python twitterwall cli --help
+twitterwall cli --help
 ```
 
 Show only czech tweets (no retweets) with hashtag **#python**:
 
 ```
-python twitterwall cli -q "#python" --no-retweets --lang "cs"
+twitterwall cli -q "#python" --no-retweets --lang "cs"
 ```
 
 Show only czech tweets (no retweets) with text **swag**, 
@@ -138,7 +138,7 @@ check every 1 second, load 20 tweets at start and don't use any
 CLI output styling at all:
 
 ```
-python twitterwall cli -q "swag" -i 1 -n 20 --no-swag
+twitterwall cli -q "swag" -i 1 -n 20 --no-swag
 ```
 
 Filter loaded tweets with word **python** by allowing only authors **hroncok** 
@@ -148,8 +148,8 @@ and **EnCuKou** ([MI-PYT](https://github.com/cvut/MI-PYT) teachers):
 will be shown at the start, because are not in last 5 tweets containing word "python".
 
 ```
-python twitterwall cli -q "python" -a "hroncok" -a "EnCuKou"
-python twitterwall cli -q "python" -a "hroncok" -a "encukou"
+twitterwall cli -q "python" -a "hroncok" -a "EnCuKou"
+twitterwall cli -q "python" -a "hroncok" -a "encukou"
 ```
 
 Filter loaded tweets with word **python** by blocking authors **hroncok** 
@@ -157,8 +157,8 @@ and **EnCuKou** ([MI-PYT](https://github.com/cvut/MI-PYT) teachers), so it
 will hide all tweets by them:
 
 ```
-python twitterwall cli -q "python" -b "hroncok" -b "EnCuKou"
-python twitterwall cli -q "python" -b "hroncok" -b "encukou"
+twitterwall cli -q "python" -b "hroncok" -b "EnCuKou"
+twitterwall cli -q "python" -b "hroncok" -b "encukou"
 ```
 
 Filter loaded tweets with word **python** by allowing only tweets with 
@@ -166,8 +166,8 @@ number of retweets between 10 and 100 and from authors that have at least
 300 followers but also less than 3000:
 
 ```
-python twitterwall cli -q "python" --retweets-min 10 --retweets-max 100 \
-                       --followers-min 300 --followers-max 3000
+twitterwall cli -q "python" --retweets-min 10 --retweets-max 100 \
+                --followers-min 300 --followers-max 3000
 ```
 
 #### Output sample
@@ -208,7 +208,7 @@ _Example_: [mareksuchanek.pythonanywhere.com](http://mareksuchanek.pythonanywher
 Here is also `--help` as for the `cli` command: 
 
 ```
-python twitterwall web --help
+twitterwall web --help
 ```
 
 Start web interface with loading 7 tweets at start and 10 seconds interval of AJAX requests (when turned on by user). 
@@ -216,8 +216,8 @@ Start web interface with loading 7 tweets at start and 10 seconds interval of AJ
   * _NOTE_: Minimal value of interval is defined as 3 seconds.
   
 ```
-python twitterwall web --count 7 --interval 10
-python twitterwall web -n 7 -i 10
+twitterwall web --count 7 --interval 10
+twitterwall web -n 7 -i 10
 ```
 
 Start web interface with default values (5 tweets and 5 seconds), but turn on debugging.
@@ -225,7 +225,7 @@ Start web interface with default values (5 tweets and 5 seconds), but turn on de
   * _NOTE_: Should not be used on production! :confounded:
 
 ```
-python twitterwall web --debug
+twitterwall web --debug
 ```
 
 #### Screenshots
