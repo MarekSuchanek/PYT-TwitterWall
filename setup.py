@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-with open('README') as f:
+with open('README.md') as f:
     long_description = ''.join(f.readlines())
 
 setup(
@@ -14,6 +14,17 @@ setup(
     license='MIT',
     url='https://github.com/MarekSuchanek/PYT-TwitterWall',
     packages=find_packages(),
+    data_files=[
+        ('config', ['config/auth.example.cfg'])
+    ],
+    package_data={
+        'twitterwall': [
+            'static/*.*',
+            'static/fonts/*.*',
+            'static/images/*.*',
+            'templates/*.html'
+        ]
+    },
     install_requires=[
         'Flask>=0.10.0',
         'Jinja2>=2.6',
