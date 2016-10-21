@@ -3,8 +3,8 @@ import click
 import signal
 import sys
 import time
-from common import *
-from web import start_web
+from .common import TwitterConnection
+from .web import start_web
 
 wall = None
 twitter = None
