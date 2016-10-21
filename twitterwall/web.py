@@ -2,7 +2,7 @@ import flask
 import jinja2
 import configparser
 import json
-from .common import TwitterConnection
+from twitterwall.common import TwitterConnection
 
 app = flask.Flask(__name__)
 twitter = None

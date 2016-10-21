@@ -3,8 +3,8 @@ import click
 import signal
 import sys
 import time
-from .common import TwitterConnection
-from .web import start_web
+from twitterwall.common import TwitterConnection
+from twitterwall.web import start_web
 
 wall = None
 twitter = None
@@ -152,7 +152,7 @@ class CLIColorfulWall(CLIWall):
         click.secho(text, fg=self.colors['bye'], bold=True)
 
 
-@click.group()
+@click.group(name="twitterwall")
 @click.option('--config', '-c', default='config/auth.cfg',
               type=click.File('r'), help='App config file path.')
 @click.version_option(version='0.2', prog_name='TwitterWall')
