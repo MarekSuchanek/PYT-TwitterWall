@@ -14,9 +14,6 @@ setup(
     license='MIT',
     url='https://github.com/MarekSuchanek/PYT-TwitterWall',
     packages=find_packages(),
-    data_files=[
-        ('config', ['config/auth.example.cfg'])
-    ],
     package_data={
         'twitterwall': [
             'static/*.*',
