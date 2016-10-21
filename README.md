@@ -25,8 +25,8 @@ equivalents):
 #### System-wide environment:
 
 ```
-../PYT-TwitterWall/ $ python3 -m pip -r requirements.txt
-../PYT-TwitterWall/ $ python3 twitterwall ...
+../PYT-TwitterWall/ $ python3 setup.py install
+../PYT-TwitterWall/ $ twitterwall ...
 ```
 
 #### Virtual environment:
@@ -34,8 +34,8 @@ equivalents):
 ```
 ../PYT-TwitterWall/ $ python3 -m venv env
 ../PYT-TwitterWall/ $ . env/bin/activate
-(env) ../PYT-TwitterWall/ $ python3 -m pip -r requirements.txt
-(env) ../PYT-TwitterWall/ $ python3 twitterwall ...
+(env) ../PYT-TwitterWall/ $ python3 setup.py install
+(env) ../PYT-TwitterWall/ $ twitterwall ...
 
 (env) ../PYT-TwitterWall/ $ deactivate
 ../PYT-TwitterWall/ $ rm -r env
@@ -63,12 +63,21 @@ You can use pip (and the Test PyPi) to install package **twitterwall**:
 pip install --extra-index-url https://testpypi.python.org/pypi twitterwall
 ```
 
-__NOTE__: You can not use only the `-i`, because some of the required 
+ * _NOTE_: You can not use only the `-i`, because some of the required 
 packages are not in the Test PyPi.
 
 Again you can run this command system-wide (watch you Python version) or
 setup virtual environment first.
 
+### Install tested environment
+
+Twitter Wall is tested in environment with packages & versions noted in 
+the `requirements.txt` file (made by `pip freeze`). So you can install 
+identical environment by:
+
+```
+(env) ../PYT-TwitterWall/ $ python3 -m pip -r requirements.txt
+```
 
 ### Twitter API key
 
@@ -86,7 +95,7 @@ First you need config file with your API key & secret. Default path is `config/a
 can be set different via `--config` option:
 
 ```
-python twitterwall --config <file> [web|cli] ...
+twitterwall --config <file> [web|cli] ...
 ```
 
 ### CLI
