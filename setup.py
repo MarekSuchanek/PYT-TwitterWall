@@ -13,6 +13,7 @@ setup(
     author_email='suchama4@fit.cvut.cz',
     license='MIT',
     url='https://github.com/MarekSuchanek/PYT-TwitterWall',
+    zip_safe=False,  # http://flask.pocoo.org/docs/0.11/patterns/distribute/
     packages=find_packages(),
     package_data={
         'twitterwall': [
