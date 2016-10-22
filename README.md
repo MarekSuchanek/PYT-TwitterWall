@@ -25,20 +25,20 @@ equivalents):
 #### System-wide environment:
 
 ```
-../PYT-TwitterWall/ $ python3 setup.py install
-../PYT-TwitterWall/ $ twitterwall ...
+ $ python3 setup.py install
+ $ twitterwall ...
 ```
 
 #### Virtual environment:
 
 ```
-../PYT-TwitterWall/ $ python3 -m venv env
-../PYT-TwitterWall/ $ . env/bin/activate
-(env) ../PYT-TwitterWall/ $ python3 setup.py install
-(env) ../PYT-TwitterWall/ $ twitterwall ...
+ $ python3 -m venv env
+ $ . env/bin/activate
+(env) $ python3 setup.py install
+(env) $ twitterwall ...
 
-(env) ../PYT-TwitterWall/ $ deactivate
-../PYT-TwitterWall/ $ rm -r env
+(env) $ deactivate
+ $ rm -r env
 ```
 
 ### setup.py
@@ -56,6 +56,8 @@ python3 -m twitterwall ...
 ```
 
 ### PyPi (testing)
+
+ *  [https://testpypi.python.org/pypi/twitterwall](https://testpypi.python.org/pypi/twitterwall)
 
 You can use pip (and the Test PyPi) to install package **twitterwall**:
 
