@@ -5,8 +5,6 @@ import json
 from .common import TwitterConnection
 
 app = flask.Flask(__name__)
-twitter = None
-cfg = {}
 
 
 @app.route('/')
@@ -17,19 +15,32 @@ def index():
 @app.route('/q/<query>')
 @app.route('/q/<query>/<lang>')
 def feed(query, lang=''):
-    params = {'q': query, 'count': cfg['count'], 'include_entities': True}
+    twitter = TwitterConnection(
+        app.config['API_KEY'],
+        app.config['API_SECRET']
+    )
+    params = {
+        'q': query,
+        'count': app.config['INIT_COUNT'],
+        'include_entities': True
+    }
     if lang != '':
         params['lang'] = lang
     tweets = twitter.get_tweets(params)
     lid = 0 if len(tweets) == 0 else tweets[-1]['id']
     return flask.render_template('feed.html', query=query, lang=lang,
                                  tweets=reversed(tweets), lid=lid,
-                                 interval=cfg['interval'], count=len(tweets))
+                                 interval=app.config['AJAX_INTERVAL'],
+                                 count=len(tweets))
 
 
 @app.route('/api/<lid>/<query>')
 @app.route('/api/<lid>/<query>/<lang>')
 def api(lid, query, lang=''):
+    twitter = TwitterConnection(
+        app.config['API_KEY'],
+        app.config['API_SECRET']
+    )
     params = {'q': query, 'since_id': lid, 'include_entities': True}
     if lang != '':
         params['lang'] = lang
@@ -148,17 +159,12 @@ def urls(tweet):
     return jinja2.Markup(', '.join(res))
 
 
-def start_web(debug, count, interval, tw):
-    global twitter, cfg
-    cfg = {'count': count, 'interval': interval}
-    twitter = tw
-    app.config['TEMPLATES_AUTO_RELOAD'] = debug
-    app.run(debug=debug)
-
-
 if __name__ == '__main__':
     authcfg = configparser.ConfigParser()
     authcfg.read('config/auth.cfg')
-    twitter = TwitterConnection(authcfg['twitter']['key'],
-                                authcfg['twitter']['secret'])
-    start_web(True, 5, 3, twitter)
+    app.config['API_KEY'] = authcfg['twitter']['key']
+    app.config['API_SECRET'] = authcfg['twitter']['secret']
+    app.config['AJAX_INTERVAL'] = 3
+    app.config['INIT_COUNT'] = 5
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.run(debug=True)

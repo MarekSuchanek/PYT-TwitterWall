@@ -4,10 +4,6 @@ import signal
 import sys
 import time
 from .common import TwitterConnection
-from .web import start_web
-
-wall = None
-twitter = None
 
 
 class TweetReader:
@@ -89,10 +85,6 @@ class CLIWall:
         click.echo(': {}'.format(tweet.get_text()))
         click.echo()
 
-    def print_bye(self, text):
-        click.echo()
-        click.echo(text)
-
 
 class CLIColorfulWall(CLIWall):
     colors = {
@@ -147,23 +139,19 @@ class CLIColorfulWall(CLIWall):
         result += text[index:]
         return result
 
-    def print_bye(self, text):
-        click.echo()
-        click.secho(text, fg=self.colors['bye'], bold=True)
-
 
 @click.group(name="twitterwall")
 @click.option('--config', '-c', default='config/auth.cfg',
               type=click.File('r'), help='App config file path.')
-@click.version_option(version='0.2', prog_name='TwitterWall')
-def twitter_wall(config):
+@click.version_option(version='0.4', prog_name='TwitterWall')
+@click.pass_context
+def twitter_wall(ctx, config):
     """Twitter Wall for loading and printing desired tweets"""
-    global twitter
     authcfg = configparser.ConfigParser()
     authcfg.read_file(config)
     config.close()
-    twitter = TwitterConnection(authcfg['twitter']['key'],
-                                authcfg['twitter']['secret'])
+    ctx.obj['API_KEY'] = authcfg['twitter']['key']
+    ctx.obj['API_SECRET'] = authcfg['twitter']['secret']
 
 
 @twitter_wall.command()
@@ -191,11 +179,12 @@ def twitter_wall(config):
               help='Max number of followers.')
 @click.option('--swag/--no-swag', is_flag=True, default=True,
               help='Style (or not) with colors and bold/underline on output.')
-def cli(query, count, interval, lang, no_retweets,
+@click.pass_context
+def cli(ctx, query, count, interval, lang, no_retweets,
         retweets_min, retweets_max, followers_min, followers_max,
         author, blocked_author, swag):
     """Twitter Wall running in CLI"""
-    global wall, twitter
+    twitter = TwitterConnection(ctx.obj['API_KEY'], ctx.obj['API_SECRET'])
     wall = CLIColorfulWall() if swag else CLIWall()
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -211,15 +200,20 @@ def cli(query, count, interval, lang, no_retweets,
               help='Number of tweets displayed without AJAX.')
 @click.option('--interval', '-i', default=5,
               help='Interval of loading by AJAX (min 3s).')
-def web(debug, count, interval):
+@click.pass_context
+def web(ctx, debug, count, interval):
     """Twitter Wall running as web server"""
-    global twitter
-    start_web(debug, count, max(interval, 3), twitter)
+    from .web import app
+    app.config['API_KEY'] = ctx.obj['API_KEY']
+    app.config['API_SECRET'] = ctx.obj['API_SECRET']
+    app.config['AJAX_INTERVAL'] = interval
+    app.config['INIT_COUNT'] = count
+    app.config['TEMPLATES_AUTO_RELOAD'] = debug
+    app.run(debug=debug)
 
 
 def signal_handler(sig, frame):
-    global wall
-    wall.print_bye('Bye! See you soon...')
+    print('\nBye! See you soon...')
     sys.exit(0)
 
 if __name__ == '__main__':
