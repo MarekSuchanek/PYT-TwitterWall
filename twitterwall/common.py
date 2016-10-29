@@ -7,14 +7,14 @@ class TwitterConnection:
     tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
     timeout = 5
 
-    def __init__(self, api_key, api_secret):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        self.session = self.start_session()
+    def __init__(self, api_key, api_secret, session=None):
+        self.session = session
+        if session is None:
+            self.session = self._start_session(api_key, api_secret)
 
-    def start_session(self):
+    def _start_session(self, api_key, api_secret):
         session = requests.Session()
-        secret = '{}:{}'.format(self.api_key, self.api_secret)
+        secret = '{}:{}'.format(api_key, api_secret)
         secret64 = base64.b64encode(secret.encode('ascii')).decode('ascii')
 
         headers = {
