@@ -39,7 +39,8 @@ setup(
     ],
     tests_require=[
         'pytest',
-        'pytest-pep8',
+        'pytest-pep8'
+        'pytest-cov',
         'pytest-sugar',
     ],
     classifiers=[
