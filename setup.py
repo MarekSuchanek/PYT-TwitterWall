@@ -34,6 +34,14 @@ setup(
         'click>=6.6',
         'requests>=2.10.0'
     ],
+    setup_requires=[
+        'pytest-runner',
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-pep8',
+        'pytest-sugar',
+    ],
     classifiers=[
         'Environment :: Console',
         'Environment :: Web Environment',
