@@ -157,14 +157,3 @@ def url_link(url):
 def urls(tweet):
     res = [url_link(u) for u in tweet.get_entities_of_type('urls')]
     return jinja2.Markup(', '.join(res))
-
-
-if __name__ == '__main__':
-    authcfg = configparser.ConfigParser()
-    authcfg.read('config/auth.cfg')
-    app.config['API_KEY'] = authcfg['twitter']['key']
-    app.config['API_SECRET'] = authcfg['twitter']['secret']
-    app.config['AJAX_INTERVAL'] = 3
-    app.config['INIT_COUNT'] = 5
-    app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.run(debug=True)

@@ -215,7 +215,3 @@ def web(ctx, debug, count, interval):
 def signal_handler(sig, frame):
     print('\nBye! See you soon...')
     sys.exit(0)
-
-if __name__ == '__main__':
-    signal.signal(signal.SIGINT, signal_handler)
-    cli()
