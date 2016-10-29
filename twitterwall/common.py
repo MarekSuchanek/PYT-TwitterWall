@@ -48,6 +48,7 @@ class TwitterConnection:
 class Tweet:
     """Twitter tweet data wrapper concentrating getters"""
     dformat = '%a %b %d %H:%M:%S +0000 %Y'
+    tweet_url = 'https://twitter.com/{}/statuses/{}'
 
     def __init__(self, jsondata):
         self.data = jsondata
@@ -81,8 +82,7 @@ class Tweet:
                                  self.dformat)
 
     def get_url(self):
-        return 'https://twitter.com/{}/statuses/{}'.\
-            format(self.get_author_nick(), self.get_id())
+        return self.tweet_url.format(self.get_author_nick(), self.get_id())
 
     def is_retweet(self):
         return 'retweeted_status' in self.data
