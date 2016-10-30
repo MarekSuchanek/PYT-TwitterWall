@@ -8,12 +8,10 @@ class TwitterConnection:
     timeout = 5
 
     def __init__(self, api_key, api_secret, session=None):
-        self.session = session
-        if session is None:
-            self.session = self._start_session(api_key, api_secret)
+        self.session = session or requests.Session()
+        self._start_session(api_key, api_secret)
 
     def _start_session(self, api_key, api_secret):
-        session = requests.Session()
         secret = '{}:{}'.format(api_key, api_secret)
         secret64 = base64.b64encode(secret.encode('ascii')).decode('ascii')
 
@@ -22,10 +20,10 @@ class TwitterConnection:
             'Host': 'api.twitter.com',
         }
 
-        r = session.post('https://api.twitter.com/oauth2/token',
-                         headers=headers,
-                         data={'grant_type': 'client_credentials'},
-                         timeout=self.timeout)
+        r = self.session.post('https://api.twitter.com/oauth2/token',
+                              headers=headers,
+                              data={'grant_type': 'client_credentials'},
+                              timeout=self.timeout)
         r.raise_for_status()
 
         bearer_token = r.json()['access_token']
@@ -34,8 +32,7 @@ class TwitterConnection:
             req.headers['Authorization'] = 'Bearer ' + bearer_token
             return req
 
-        session.auth = bearer_auth
-        return session
+        self.session.auth = bearer_auth
 
     def get_tweets(self, params):
         r = self.session.get(self.tweet_api_url,

@@ -42,6 +42,7 @@ setup(
         'pytest-pep8'
         'pytest-cov',
         'pytest-sugar',
+        'betamax',
     ],
     classifiers=[
         'Environment :: Console',
