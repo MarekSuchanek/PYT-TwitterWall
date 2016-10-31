@@ -30,12 +30,17 @@ def sanitize_responses(interaction, current_cassette):
     print(interaction.as_response().json()['access_token'])
     interaction.as_response().json()['access_token'] = '<TOKEN>'
     print(interaction.as_response().json()['access_token'])
-    new_data = base64.b64encode(gzip.compress('{"access_token":"<TOKEN>"}'.encode('ascii'))).decode('ascii')
+    new_data = base64.b64encode(gzip.compress(
+        '{"access_token":"<TOKEN>"}'.encode('ascii')
+    )).decode('ascii')
     print(interaction.data['response']['body']['base64_string'])
     print(new_data)
-    #interaction.data['response']['body']['base64_string'] = new_data
+    #  interaction.data['response']['body']['base64_string'] = new_data
     current_cassette.placeholders.append(
-        cassette.Placeholder(placeholder=new_data, replace=interaction.data['response']['body']['base64_string'])
+        cassette.Placeholder(
+            placeholder=new_data,
+            replace=interaction.data['response']['body']['base64_string']
+        )
     )  # this does not work... awesome! will spend few more hours on that
 
 
@@ -59,7 +64,6 @@ def twitter(betamax_session):
     api_key = os.environ.get('API_KEY', 'fake_key')
     api_secret = os.environ.get('API_SECRET', 'fake_secret')
     return TwitterConnection(api_key, api_secret, session=betamax_session)
-
 
 
 @pytest.fixture
