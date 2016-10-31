@@ -203,12 +203,13 @@ def cli(ctx, query, count, interval, lang, no_retweets,
 @click.pass_context
 def web(ctx, debug, count, interval):
     """Twitter Wall running as web server"""
-    from .web import app
+    from .web import app, init_injector
     app.config['API_KEY'] = ctx.obj['API_KEY']
     app.config['API_SECRET'] = ctx.obj['API_SECRET']
     app.config['AJAX_INTERVAL'] = interval
     app.config['INIT_COUNT'] = count
     app.config['TEMPLATES_AUTO_RELOAD'] = debug
+    init_injector()
     app.run(debug=debug)
 
 

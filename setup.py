@@ -30,6 +30,8 @@ setup(
     },
     install_requires=[
         'Flask>=0.10.0',
+        'Flask-Injector>=0.8.0',
+        'injector>=0.9.0',
         'Jinja2>=2.6',
         'click>=6.6',
         'requests>=2.10.0'
