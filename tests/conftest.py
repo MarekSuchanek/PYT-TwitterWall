@@ -3,8 +3,6 @@ import betamax
 import flexmock
 from betamax.cassette import cassette
 import os
-import gzip
-import base64
 import json
 import flask_injector
 import injector
@@ -17,7 +15,10 @@ def sanitize_requests(interaction, current_cassette):
     if auth is None:
         return
     current_cassette.placeholders.append(
-        cassette.Placeholder(placeholder='<AUTH>', replace=auth)
+        cassette.Placeholder(
+            placeholder='<AUTH>',
+            replace=auth
+        )
     )
 
 
@@ -27,21 +28,11 @@ def sanitize_responses(interaction, current_cassette):
     data = interaction.as_response().json()
     if 'access_token' not in data:
         return
-    print(interaction.as_response().json()['access_token'])
-    interaction.as_response().json()['access_token'] = '<TOKEN>'
-    print(interaction.as_response().json()['access_token'])
-    new_data = base64.b64encode(gzip.compress(
-        '{"access_token":"<TOKEN>"}'.encode('ascii')
-    )).decode('ascii')
-    print(interaction.data['response']['body']['base64_string'])
-    print(new_data)
-    #  interaction.data['response']['body']['base64_string'] = new_data
     current_cassette.placeholders.append(
         cassette.Placeholder(
-            placeholder=new_data,
-            replace=interaction.data['response']['body']['base64_string']
-        )
-    )  # this does not work... awesome! will spend few more hours on that
+            placeholder='<TOKEN>',
+            replace=data['access_token'])
+    )
 
 
 def sanitize_token(interaction, current_cassette):
@@ -61,13 +52,15 @@ with betamax.Betamax.configure() as config:
 @pytest.fixture
 def twitter(betamax_session):
     """TwitterConnection with betamax session"""
+    betamax_session.headers.update({'accept-encoding': 'identity'})
     api_key = os.environ.get('API_KEY', 'fake_key')
     api_secret = os.environ.get('API_SECRET', 'fake_secret')
     return TwitterConnection(api_key, api_secret, session=betamax_session)
 
 
 @pytest.fixture
-def twitter():
+def twitter_mock():
+    """TwitterConnection Mock returning tweets from example JSON file"""
     from twitterwall.common import Tweet
 
     def get_tweets(params):
@@ -77,13 +70,14 @@ def twitter():
 
 
 @pytest.fixture
-def webapp(twitter):
+def webapp(twitter_mock):
+    """Flask web application test client"""
     from twitterwall.web import app
 
     def configure(binder):
         binder.bind(
             TwitterConnection,
-            to=twitter,
+            to=twitter_mock,
             scope=injector.singleton
         )
 

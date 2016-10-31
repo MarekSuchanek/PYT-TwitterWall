@@ -27,8 +27,8 @@ def test_api_with_lang(webapp):
     assert 'tweet' in webapp.get('/api/0/yolo/cs').data.decode('utf-8')
 
 
-def test_author_avatar(twitter):
-    tweet = twitter.get_tweets({})[0]
+def test_author_avatar(twitter_mock):
+    tweet = twitter_mock.get_tweets({})[0]
     result = author_avatar(tweet)
     assert 'img' in result
     assert tweet['user']['profile_image_url'] in result
@@ -57,8 +57,8 @@ def test_media_img():
     assert 'nope.jpg' in result
 
 
-def test_tweet_date(twitter):
-    tweet = twitter.get_tweets({})[0]
+def test_tweet_date(twitter_mock):
+    tweet = twitter_mock.get_tweets({})[0]
     result = tweet_date(tweet)
     assert str(tweet.get_created().day) in result
     assert str(tweet.get_created().month) in result
@@ -68,14 +68,14 @@ def test_tweet_date(twitter):
     assert str(tweet.get_created().second) in result
 
 
-def test_enhance_text(twitter):
-    tweet = twitter.get_tweets({})[0]
+def test_enhance_text(twitter_mock):
+    tweet = twitter_mock.get_tweets({})[0]
     result = enhance_text(tweet)
     assert 'a href' in result
 
 
-def test_hashtags(twitter):
-    tweet = twitter.get_tweets({})[0]
+def test_hashtags(twitter_mock):
+    tweet = twitter_mock.get_tweets({})[0]
     tweet['entities']['hashtags'] = [
           {
               "text": "freebandnames",
@@ -85,8 +85,8 @@ def test_hashtags(twitter):
     assert 'freebandnames' in hashtags(tweet)
 
 
-def test_mentions(twitter):
-    tweet = twitter.get_tweets({})[0]
+def test_mentions(twitter_mock):
+    tweet = twitter_mock.get_tweets({})[0]
     tweet['entities']['user_mentions'] = [{
       "screen_name": "TwitterEng",
       "name": "Twitter Engineering",
@@ -97,8 +97,8 @@ def test_mentions(twitter):
     assert 'TwitterEng' in mentions(tweet)
 
 
-def test_medias(twitter):
-    tweet = twitter.get_tweets({})[0]
+def test_medias(twitter_mock):
+    tweet = twitter_mock.get_tweets({})[0]
     tweet['entities']['media'] = [{
       "id": 266031293949698048,
       "id_str": "266031293949698048",
@@ -114,8 +114,8 @@ def test_medias(twitter):
     assert tweet['entities']['media'][0]['media_url'] in medias(tweet)
 
 
-def test_urls(twitter):
-    tweet = twitter.get_tweets({})[0]
+def test_urls(twitter_mock):
+    tweet = twitter_mock.get_tweets({})[0]
     tweet['entities']['urls'] = [{
       "url": "https://t.co/XdXRudPXH5",
       "expanded_url": "https://blog.twitter.com/2013/rich-photo",
