@@ -2,6 +2,8 @@ import pytest
 import betamax
 from betamax.cassette import cassette
 import os
+import gzip
+import base64
 from twitterwall.common import TwitterConnection
 
 
@@ -18,12 +20,18 @@ def sanitize_requests(interaction, current_cassette):
 def sanitize_responses(interaction, current_cassette):
     if interaction.data['response']['status']['code'] != 200:
         return
-    url = interaction.data['response']['url']
-    auth = interaction.data['response']['body'].get('base64_string')
-    if 'oauth2/token' not in url or auth is None:
+    data = interaction.as_response().json()
+    if 'access_token' not in data:
         return
+    print(interaction.as_response().json()['access_token'])
+    interaction.as_response().json()['access_token'] = '<TOKEN>'
+    print(interaction.as_response().json()['access_token'])
+    new_data = base64.b64encode(gzip.compress('{"access_token":"<TOKEN>"}'.encode('ascii'))).decode('ascii')
+    print(interaction.data['response']['body']['base64_string'])
+    print(new_data)
+    #interaction.data['response']['body']['base64_string'] = new_data
     current_cassette.placeholders.append(
-        cassette.Placeholder(placeholder='<TOKEN>', replace=auth)
+        cassette.Placeholder(placeholder=new_data, replace=interaction.data['response']['body']['base64_string'])
     )  # this does not work... awesome! will spend few more hours on that
 
 
