@@ -215,3 +215,7 @@ def web(ctx, debug, count, interval):
 def signal_handler(sig, frame):
     print('\nBye! See you soon...')
     sys.exit(0)
+
+
+def main():
+    twitter_wall(obj={})

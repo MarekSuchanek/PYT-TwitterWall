@@ -25,7 +25,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'twitterwall = twitterwall.cli:twitter_wall',
+            'twitterwall = twitterwall.cli:main',
         ],
     },
     install_requires=[
