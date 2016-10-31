@@ -1,5 +1,3 @@
-from flexmock import flexmock
-from twitterwall.common import TwitterConnection
 from twitterwall.web import *
 
 
