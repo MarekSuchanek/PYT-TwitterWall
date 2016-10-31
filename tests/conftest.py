@@ -1,9 +1,13 @@
 import pytest
 import betamax
+import flexmock
 from betamax.cassette import cassette
 import os
 import gzip
 import base64
+import json
+import flask_injector
+import injector
 from twitterwall.common import TwitterConnection
 
 
@@ -55,3 +59,33 @@ def twitter(betamax_session):
     api_key = os.environ.get('API_KEY', 'fake_key')
     api_secret = os.environ.get('API_SECRET', 'fake_secret')
     return TwitterConnection(api_key, api_secret, session=betamax_session)
+
+
+
+@pytest.fixture
+def twitter():
+    from twitterwall.common import Tweet
+
+    def get_tweets(params):
+        with open('tests/fixtures/tweets.json') as f:
+            return [Tweet(data) for data in json.load(f)['statuses']]
+    return flexmock.flexmock(get_tweets=get_tweets)
+
+
+@pytest.fixture
+def webapp(twitter):
+    from twitterwall.web import app
+
+    def configure(binder):
+        binder.bind(
+            TwitterConnection,
+            to=twitter,
+            scope=injector.singleton
+        )
+
+    flask_injector.FlaskInjector(app=app, modules=[configure])
+
+    app.config['TESTING'] = True
+    app.config['AJAX_INTERVAL'] = 7
+    app.config['INIT_COUNT'] = 10
+    return app.test_client()

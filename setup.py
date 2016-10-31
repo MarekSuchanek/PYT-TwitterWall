@@ -45,6 +45,7 @@ setup(
         'pytest-cov',
         'pytest-sugar',
         'betamax',
+        'flexmock',
     ],
     classifiers=[
         'Environment :: Console',
