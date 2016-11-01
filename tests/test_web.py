@@ -1,28 +1,28 @@
 from twitterwall.web import *
 
 
-def test_landing(webapp):
+def test_mock_landing(webapp):
     assert webapp.get('/').status == '200 OK'
     assert '<h1>Twitter Wall</h1>' in \
            webapp.get('/').data.decode('utf-8')
 
 
-def test_feed_simple(webapp):
+def test_mock_feed_simple(webapp):
     assert webapp.get('/q/yolo').status == '200 OK'
     assert 'yolo' in webapp.get('/q/yolo').data.decode('utf-8')
 
 
-def test_feed_with_lang(webapp):
+def test_mock_feed_with_lang(webapp):
     assert webapp.get('/q/yolo/cs').status == '200 OK'
     assert 'yolo' in webapp.get('/q/yolo/cs').data.decode('utf-8')
 
 
-def test_api_simple(webapp):
+def test_mock_api_simple(webapp):
     assert webapp.get('/api/0/yolo').status == '200 OK'
     assert 'tweet' in webapp.get('/api/0/yolo').data.decode('utf-8')
 
 
-def test_api_with_lang(webapp):
+def test_mock_api_with_lang(webapp):
     assert webapp.get('/api/0/yolo/cs').status == '200 OK'
     assert 'tweet' in webapp.get('/api/0/yolo/cs').data.decode('utf-8')
 
@@ -70,6 +70,25 @@ def test_tweet_date(twitter_mock):
 
 def test_enhance_text(twitter_mock):
     tweet = twitter_mock.get_tweets({})[0]
+    tweet['entities']['hashtags'] = [
+          {
+              "text": "freebandnames",
+              "indices": [20, 34]
+          }
+        ]
+    tweet['entities']['user_mentions'] = [{
+      "screen_name": "TwitterEng",
+      "name": "Twitter Engineering",
+      "id": 6844292,
+      "id_str": "6844292",
+      "indices": [81, 92]
+    }]
+    tweet['entities']['urls'] = [{
+      "url": "https://t.co/XdXRudPXH5",
+      "expanded_url": "https://blog.twitter.com/2013/rich-photo",
+      "display_url": "blog.twitter.com/2013/rich-phot\u2026",
+      "indices": [80, 103]
+    }]
     result = enhance_text(tweet)
     assert 'a href' in result
 
