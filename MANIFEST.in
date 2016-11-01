@@ -1,3 +1,5 @@
 include LICENSE
-exclude README.md
+include pytest.ini
 include config/auth.example.cfg
+include tests/*.py
+graft tests/fixtures

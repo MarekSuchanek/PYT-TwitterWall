@@ -1,6 +1,7 @@
 import flask
 import jinja2
-import configparser
+import flask_injector
+import injector
 import json
 from .common import TwitterConnection
 
@@ -14,11 +15,8 @@ def index():
 
 @app.route('/q/<query>')
 @app.route('/q/<query>/<lang>')
-def feed(query, lang=''):
-    twitter = TwitterConnection(
-        app.config['API_KEY'],
-        app.config['API_SECRET']
-    )
+@injector.inject(twitter=TwitterConnection)
+def feed(twitter, query, lang=''):
     params = {
         'q': query,
         'count': app.config['INIT_COUNT'],
@@ -36,11 +34,8 @@ def feed(query, lang=''):
 
 @app.route('/api/<lid>/<query>')
 @app.route('/api/<lid>/<query>/<lang>')
-def api(lid, query, lang=''):
-    twitter = TwitterConnection(
-        app.config['API_KEY'],
-        app.config['API_SECRET']
-    )
+@injector.inject(twitter=TwitterConnection)
+def api(twitter, lid, query, lang=''):
     params = {'q': query, 'since_id': lid, 'include_entities': True}
     if lang != '':
         params['lang'] = lang
@@ -157,3 +152,18 @@ def url_link(url):
 def urls(tweet):
     res = [url_link(u) for u in tweet.get_entities_of_type('urls')]
     return jinja2.Markup(', '.join(res))
+
+
+def configure(binder):
+    binder.bind(
+        TwitterConnection,
+        to=TwitterConnection(
+            app.config['API_KEY'],
+            app.config['API_SECRET']
+        ),
+        scope=injector.singleton
+    )
+
+
+def init_injector():
+    flask_injector.FlaskInjector(app=app, modules=[configure])

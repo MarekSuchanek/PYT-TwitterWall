@@ -8,7 +8,7 @@ from .common import TwitterConnection
 
 class TweetReader:
 
-    def __init__(self, twitter, wall, query, lang):
+    def __init__(self, twitter, wall, query, lang=None):
         self.twitter = twitter
         self.wall = wall
         self.params = {'q': query, 'since_id': 0}
@@ -72,42 +72,45 @@ class TweetReader:
 class CLIWall:
     dformat = '%d/%m/%Y %H:%M:%S'
 
-    def __init__(self):
-        click.clear()
+    def __init__(self, printer):
+        self.printer = printer
+        self.printer.clear()
         print('', end='', flush=True)
 
     def print_tweet(self, tweet):
-        click.echo('{}'.format(tweet.get_created().strftime(self.dformat)),
-                   nl=False)
-        click.echo(' ({})'.format(tweet.get_url()))
-        click.echo(tweet.get_author_name(), nl=False)
-        click.echo(' [{}]'.format(tweet.get_author_nick()), nl=False)
-        click.echo(': {}'.format(tweet.get_text()))
-        click.echo()
+        self.printer.echo('{}'.format(
+            tweet.get_created().strftime(self.dformat)), nl=False
+        )
+        self.printer.echo(' ({})'.format(tweet.get_url()))
+        self.printer.echo(tweet.get_author_name(), nl=False)
+        self.printer.echo(' [{}]'.format(tweet.get_author_nick()), nl=False)
+        self.printer.echo(': {}'.format(tweet.get_text()))
+        self.printer.echo()
 
 
 class CLIColorfulWall(CLIWall):
     colors = {
         'author': 'blue',
-        'bye': 'red',
         'date': 'green',
         'hashtag': 'magenta',
         'mention': 'yellow'
     }
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, printer):
+        super().__init__(printer)
 
     def print_tweet(self, tweet):
-        click.secho('{}'.format(tweet.get_created().strftime(self.dformat)),
-                    fg=self.colors['date'], nl=False)
-        click.secho(' ({})'.format(tweet.get_url()), fg='magenta')
-        click.secho(tweet.get_author_name(), bold=True,
-                    fg=self.colors['author'], nl=False)
-        click.secho(' [{}]'.format(tweet.get_author_nick()),
-                    fg=self.colors['author'], nl=False)
-        click.echo(': {}'.format(self.tweet_highlighter(tweet)))
-        click.echo()
+        self.printer.secho('{}'.format(
+            tweet.get_created().strftime(self.dformat)),
+            fg=self.colors['date'], nl=False
+        )
+        self.printer.secho(' ({})'.format(tweet.get_url()), fg='magenta')
+        self.printer.secho(tweet.get_author_name(), bold=True,
+                           fg=self.colors['author'], nl=False)
+        self.printer.secho(' [{}]'.format(tweet.get_author_nick()),
+                           fg=self.colors['author'], nl=False)
+        self.printer.echo(': {}'.format(self.tweet_highlighter(tweet)))
+        self.printer.echo()
 
     def tweet_highlighter(self, tweet):
         text = tweet.get_text()
@@ -116,19 +119,25 @@ class CLIColorfulWall(CLIWall):
         for hashtag in tweet.get_entities_of_type('hashtags'):
             entities.append(
                 (hashtag['indices'][0], hashtag['indices'][1],
-                 click.style('#'+hashtag['text'],
-                             fg=self.colors['hashtag'], bold=True))
+                 self.printer.style(
+                     '#'+hashtag['text'],
+                     fg=self.colors['hashtag'], bold=True
+                 ))
             )
         for mention in tweet.get_entities_of_type('user_mentions'):
             entities.append(
                 (mention['indices'][0], mention['indices'][1],
-                 click.style('@'+mention['screen_name'],
-                             fg=self.colors['mention'], bold=True))
+                 self.printer.style(
+                     '@'+mention['screen_name'],
+                    fg=self.colors['mention'], bold=True
+                 ))
             )
         for url in tweet.get_entities_of_type('urls'):
             entities.append(
                 (url['indices'][0], url['indices'][1],
-                 click.style(url['url'], underline=True))
+                 self.printer.style(
+                     url['url'], underline=True)
+                 )
             )
         entities.sort(reverse=True)
         index = 0
@@ -185,7 +194,7 @@ def cli(ctx, query, count, interval, lang, no_retweets,
         author, blocked_author, swag):
     """Twitter Wall running in CLI"""
     twitter = TwitterConnection(ctx.obj['API_KEY'], ctx.obj['API_SECRET'])
-    wall = CLIColorfulWall() if swag else CLIWall()
+    wall = CLIColorfulWall(click) if swag else CLIWall(click)
     signal.signal(signal.SIGINT, signal_handler)
 
     tr = TweetReader(twitter, wall, query, lang)
@@ -203,15 +212,20 @@ def cli(ctx, query, count, interval, lang, no_retweets,
 @click.pass_context
 def web(ctx, debug, count, interval):
     """Twitter Wall running as web server"""
-    from .web import app
+    from .web import app, init_injector
     app.config['API_KEY'] = ctx.obj['API_KEY']
     app.config['API_SECRET'] = ctx.obj['API_SECRET']
     app.config['AJAX_INTERVAL'] = interval
     app.config['INIT_COUNT'] = count
     app.config['TEMPLATES_AUTO_RELOAD'] = debug
+    init_injector()
     app.run(debug=debug)
 
 
 def signal_handler(sig, frame):
     print('\nBye! See you soon...')
     sys.exit(0)
+
+
+def main():
+    twitter_wall(obj={})

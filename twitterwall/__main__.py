@@ -1,3 +1,3 @@
-from .cli import twitter_wall
+from .cli import main
 
-twitter_wall(obj={})
+main()

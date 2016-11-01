@@ -5,7 +5,7 @@ with open('README') as f:
 
 setup(
     name='twitterwall',
-    version='0.3',
+    version='0.4',
     keywords='twitter feed cli web tweet wall',
     description='Simple CLI & WEB based Twitter tweets feed',
     long_description=long_description,
@@ -25,14 +25,27 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'twitterwall = twitterwall.cli:twitter_wall',
+            'twitterwall = twitterwall.cli:main',
         ],
     },
     install_requires=[
         'Flask>=0.10.0',
+        'Flask-Injector>=0.8.0',
+        'injector>=0.9.0',
         'Jinja2>=2.6',
         'click>=6.6',
         'requests>=2.10.0'
+    ],
+    setup_requires=[
+        'pytest-runner',
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-pep8',
+        'pytest-cov',
+        'pytest-sugar',
+        'betamax',
+        'flexmock',
     ],
     classifiers=[
         'Environment :: Console',

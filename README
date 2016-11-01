@@ -1,7 +1,8 @@
 # Twitter Wall
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) 
-![Version](https://img.shields.io/badge/release-v0.3-orange.svg)
+![Version](https://img.shields.io/badge/release-v0.4-orange.svg)
+[![Build Status](https://travis-ci.com/MarekSuchanek/PYT-TwitterWall.svg?token=XD73y3snHDycemSiHx3H&branch=task04)](https://travis-ci.com/MarekSuchanek/PYT-TwitterWall)
 
 
 Twitter Wall is simple [Python](https://www.python.org) powered app for 
@@ -243,6 +244,52 @@ Tweets with **#photoshoot** query with one tweet details shown (2 hashtags, 1 me
 Enlarged photo of cat :smiley_cat: via [Lightbox](http://lokeshdhakar.com/projects/lightbox2/):
 
 ![Enlarged photo of cat via Lightbox](http://marsu.9e.cz/github/twitterwall-lightbox.png)
+
+
+## Testing
+
+This project uses the most fabulous testing tools for Python:
+
+* [pytest](http://doc.pytest.org/)
+  * [pytest-cov](https://pypi.python.org/pypi/pytest-cov)
+  * [pytest-pep8](https://pypi.python.org/pypi/pytest-pep8)
+  * [pytest-sugar](https://pypi.python.org/pypi/pytest-sugar)
+* [flexmock](http://flexmock.readthedocs.io/en/latest/)
+* [betamax](betamax.readthedocs.io)
+
+Run tests:
+
+```
+python setup.py test
+```
+
+or (if you have installed dependencies):
+
+```
+python -m pytest [options]
+pytest [options]
+```
+
+### Betamax cassettes
+
+Betamax cassettes are stored in `tests/fixtures/cassettes` directory. If
+you are not connected to the internet, Twitter API is not working and/or 
+you don't have own API credentials you will use (replay) them in order to 
+test API client.
+ 
+If you want to run your own cassettes, you need to setup system variables
+
+* `API_KEY`
+* `API_SECRET`
+
+Your test command then might look like:
+
+```
+API_KEY=<YOUR_API_KEY> API_SECRET=<YOUR_API_SECRET> \
+python setup.py test
+```
+
+For more information, enjoy reading [Betamax documentation](http://betamax.readthedocs.io/en/latest/introduction.html).
 
 ## Authors
 
