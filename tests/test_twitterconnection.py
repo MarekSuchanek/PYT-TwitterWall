@@ -20,17 +20,6 @@ def test_client_query(twitter, query, count):
 
 
 @pytest.mark.parametrize(
-    ['query', 'count'],
-    itertools.product(['have', '#python'], [1, 5, 7])
-)
-def test_client_query(twitter, query, count):
-    tweets = twitter.get_tweets({'q': query, 'count': count, 'lang': 'en'})
-    assert len(tweets) <= count
-    for tweet in tweets:
-        assert query in tweet.get_text().lower()
-
-
-@pytest.mark.parametrize(
     ['query', 'max_id', 'count'],
     zip(
         ['#python', '#python'],
