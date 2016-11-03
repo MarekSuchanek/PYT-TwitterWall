@@ -40,10 +40,10 @@ setup(
         'pytest-runner',
     ],
     tests_require=[
-        'pytest',
         'pytest-pep8',
         'pytest-cov',
         'pytest-sugar',
+        'pytest',
         'betamax',
         'flexmock',
     ],
