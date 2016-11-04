@@ -1,16 +1,22 @@
-.. twitterwall documentation master file, created by
-   sphinx-quickstart on Wed Nov  2 14:39:23 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+PYT TwitterWall's documentation
+===============================
 
-Welcome to twitterwall's documentation!
-=======================================
+Welcome in **PYT TwitterWall** documentation. Continue
+by choosing desired topic from the list of contents. If
+you are not sure, try starting with :doc:`intro`. You can
+also visit the repository `PYT-TwitterWall@GitHub <https://github.com/MarekSuchanek/PYT-TwitterWall>`_.
 
-Contents:
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
 
+   intro
+   install/index
+   usage/index
+   testing
+   credits
 
 
 Indices and tables
