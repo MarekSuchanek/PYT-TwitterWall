@@ -24,8 +24,8 @@ Moreover you can use:
 -  ``--help`` to see all the options, syntax and information
 -  ``--version`` to check the version of app
 
-Examples commands
------------------
+Command examples
+----------------
 
 Show help how to use **twitterwall**:
 

@@ -4,7 +4,7 @@ WEB
 WEB interface is made by `Flask`_ & `Jinja`_. It uses also `Twitter Bootstrap`_,
 `jQuery`_ and `Lightbox`_ (local files only, no CDN).
 
-Main ideas are same as for :doc:`CLI` interface. You just start web app with defined
+Main ideas are same as for :doc:`cli` interface. You just start web app with defined
 (or default) count of initial tweets displayed and/or interval of loading next
 tweets via AJAX. You can also run in flask debugging mode. The query and language
 is set by user of web interface (by URL).
