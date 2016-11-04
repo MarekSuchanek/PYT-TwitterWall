@@ -8,8 +8,3 @@ Installation
    api_keys
    setup_py
    pypi
-
-
-
-
-

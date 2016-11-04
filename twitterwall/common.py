@@ -4,6 +4,7 @@ import requests
 
 
 class TwitterConnection:
+    """Twitter API client for searching tweets"""
     tweet_api_url = 'https://api.twitter.com/1.1/search/tweets.json'
     timeout = 5
 
