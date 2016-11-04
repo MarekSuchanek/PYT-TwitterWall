@@ -152,7 +152,7 @@ class CLIColorfulWall(CLIWall):
 @click.group(name="twitterwall")
 @click.option('--config', '-c', default='config/auth.cfg',
               type=click.File('r'), help='App config file path.')
-@click.version_option(version='0.5', prog_name='TwitterWall')
+@click.version_option(version='0.5', prog_name='PYT TwitterWall')
 @click.pass_context
 def twitter_wall(ctx, config):
     """Twitter Wall for loading and printing desired tweets"""
