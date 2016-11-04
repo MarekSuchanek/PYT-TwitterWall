@@ -5,7 +5,7 @@ with open('README') as f:
 
 setup(
     name='twitterwall',
-    version='0.4',
+    version='0.5',
     keywords='twitter feed cli web tweet wall',
     description='Simple CLI & WEB based Twitter tweets feed',
     long_description=long_description,
