@@ -15,7 +15,7 @@ Documentation
 Project now use `Sphinx`_ documentation:
 
 * Read documentation online and don't bother with anything:
-  - Will be provided soon, stay tuned!
+   - `pyt-twitterwall.readthedocs.io`_
 * Build HTML documentation locally:
    - Install all dependencies for ``twitterwall``
    - Run this commands:
@@ -49,11 +49,12 @@ file for more details.
 .. _Twitter: https://twitter.com
 .. _subject repository: https://github.com/cvut/MI-PYT
 .. _Sphinx: http://www.sphinx-doc.org
+.. _pyt-twitterwall.readthedocs.io: http://pyt-twitterwall.readthedocs.io
 .. _suchama4@fit.cvut.cz: mailto:suchama4@fit.cvut.cz
 .. _LICENSE: LICENSE
 
 .. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: LICENSE
 .. |Version| image:: https://img.shields.io/badge/release-v0.5-orange.svg
-.. |Build Status| image:: https://travis-ci.com/MarekSuchanek/PYT-TwitterWall.svg?token=XD73y3snHDycemSiHx3H&branch=task04
-   :target: https://travis-ci.com/MarekSuchanek/PYT-TwitterWall
+.. |Build Status| image:: https://travis-ci.org/MarekSuchanek/MI-PYT.svg?branch=master
+   :target: https://travis-ci.org/MarekSuchanek/MI-PYT
