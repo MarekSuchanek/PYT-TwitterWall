@@ -56,5 +56,5 @@ file for more details.
 .. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: LICENSE
 .. |Version| image:: https://img.shields.io/badge/release-v0.5-orange.svg
-.. |Build Status| image:: https://travis-ci.org/MarekSuchanek/MI-PYT.svg?branch=master
-   :target: https://travis-ci.org/MarekSuchanek/MI-PYT
+.. |Build Status| image:: https://travis-ci.org/MarekSuchanek/PYT-TwitterWall.svg?branch=master
+   :target: https://travis-ci.org/MarekSuchanek/PYT-TwitterWall
