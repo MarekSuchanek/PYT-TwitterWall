@@ -8,5 +8,7 @@ own projects.
    :maxdepth: 2
 
    tweet
+   flask_filters
+   cli_walls
 
 
