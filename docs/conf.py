@@ -57,7 +57,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'twitterwall'
+project = 'PYT TwitterWall'
 copyright = '2016, Marek Suchánek'
 author = 'Marek Suchánek'
 
@@ -271,7 +271,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'twitterwall.tex', 'twitterwall Documentation',
+    (master_doc, 'twitterwall.tex', 'PYT TwitterWall Documentation',
      'Marek Suchánek', 'manual'),
 ]
 
@@ -313,7 +313,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'twitterwall', 'twitterwall Documentation',
+    (master_doc, 'twitterwall', 'PYT TwitterWall Documentation',
      [author], 1)
 ]
 
@@ -328,8 +328,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'twitterwall', 'twitterwall Documentation',
-     author, 'twitterwall', 'One line description of project.',
+    (master_doc, 'twitterwall', 'PYT TwitterWall Documentation',
+     author, 'twitterwall', 'Simple Python-powered Twitter wall for CLI and WEB.',
      'Miscellaneous'),
 ]
 

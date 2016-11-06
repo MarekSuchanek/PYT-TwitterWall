@@ -1,7 +1,7 @@
 PYT TwitterWall
 ===============
 
-|License| |Version| |Build Status|
+|license| |version| |travis| |docs|
 
 PYT TwitterWall is simple `Python`_ powered app for displaying `Twitter`_
 tweets in CLI. It has the ability to show number of queried tweets (i.e.
@@ -24,6 +24,7 @@ Project now use `Sphinx`_ documentation:
        cd docs/
        pip install -r requirements.txt
        make html
+
    - Open ``docs/_build/html/index.html`` in your browser
 * Run documentation tests:
    - Install all dependencies for ``twitterwall``
@@ -53,8 +54,15 @@ file for more details.
 .. _suchama4@fit.cvut.cz: mailto:suchama4@fit.cvut.cz
 .. _LICENSE: LICENSE
 
-.. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
-   :target: LICENSE
-.. |Version| image:: https://img.shields.io/badge/release-v0.5-orange.svg
-.. |Build Status| image:: https://travis-ci.org/MarekSuchanek/PYT-TwitterWall.svg?branch=master
-   :target: https://travis-ci.org/MarekSuchanek/PYT-TwitterWall
+.. |license| image:: https://img.shields.io/badge/license-MIT-blue.svg
+    :alt: License
+    :target: LICENSE
+.. |version| image:: https://img.shields.io/badge/release-v0.5-orange.svg
+    :alt: Version
+    :target: setup.py
+.. |travis| image:: https://travis-ci.org/MarekSuchanek/PYT-TwitterWall.svg?branch=master
+    :alt: Build Status
+    :target: https://travis-ci.org/MarekSuchanek/PYT-TwitterWall
+.. |docs| image:: https://readthedocs.org/projects/pyt-twitterwall/badge/?version=latest
+    :alt: Documentation Status
+    :target: http://pyt-twitterwall.readthedocs.io/en/latest/?badge=latest
