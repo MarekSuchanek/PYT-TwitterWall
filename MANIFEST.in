@@ -3,3 +3,5 @@ include pytest.ini
 include config/auth.example.cfg
 include tests/*.py
 graft tests/fixtures
+graft docs
+prune docs/_build
