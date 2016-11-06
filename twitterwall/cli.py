@@ -7,6 +7,15 @@ from .common import TwitterConnection
 
 
 class TweetReader:
+    """
+    Reader for reading tweets from Twitter with given
+    parameters and displaying them on given CLI wall,
+
+    :ivar twitter: Twitter API client (TwitterConnection)
+    :ivar wall: Some CLI wall where should tweets be printed
+    :ivar query: Tweets search query string
+    :ivar lang: Optional lang code of tweets
+    """
 
     def __init__(self, twitter, wall, query, lang=None):
         self.twitter = twitter
@@ -18,6 +27,10 @@ class TweetReader:
 
     def setup_filter(self, no_rt, rt_min, rt_max, f_min,
                      f_max, authors, bauthors):
+        """
+        Setup filter in reader to show only some of
+        received tweets from Twitter API.
+        """
         authors = {a.lower() for a in authors}
         bauthors = {ba.lower() for ba in bauthors}
         self.tf = {}
@@ -45,11 +58,13 @@ class TweetReader:
         return self.tf
 
     def process_n(self, n):
+        """Query given number of tweets"""
         self.params['count'] = n
         self.process_periodic()
         del self.params['count']
 
     def process_periodic(self):
+        """Query tweets, filter them and print them eventually"""
         for t in self.twitter.get_tweets(self.params):
             if t.get_id() > self.params['since_id']:
                 self.params['since_id'] = t.get_id()
@@ -57,12 +72,14 @@ class TweetReader:
                 self.wall.print_tweet(t)
 
     def tweet_filter(self, tweet):
+        """Check if tweet is filtered or not"""
         for rule in self.tf:
             if not self.tf[rule](tweet):
                 return False
         return True
 
     def run(self, init_cnt, interval):
+        """Run reader in endless loop with given parameters"""
         self.process_n(init_cnt)
         while True:
             time.sleep(interval)
@@ -70,16 +87,25 @@ class TweetReader:
 
 
 class CLIWall:
-    dformat = '%d/%m/%Y %H:%M:%S'
+    """
+    Simple CLI wall for printing tweets without any
+    colors and enhancement in look and feel.
+
+    :cvar outformat: Output datetime format
+    :ivar printer: Object for printing tweets
+    """
+    outformat = '%d/%m/%Y %H:%M:%S'
 
     def __init__(self, printer):
+        """Init wall by printer and clearing screen"""
         self.printer = printer
         self.printer.clear()
         print('', end='', flush=True)
 
     def print_tweet(self, tweet):
+        """Print single tweet on the wall"""
         self.printer.echo('{}'.format(
-            tweet.get_created().strftime(self.dformat)), nl=False
+            tweet.get_created().strftime(self.outformat)), nl=False
         )
         self.printer.echo(' ({})'.format(tweet.get_url()))
         self.printer.echo(tweet.get_author_name(), nl=False)
@@ -89,6 +115,13 @@ class CLIWall:
 
 
 class CLIColorfulWall(CLIWall):
+    """
+    Colorful CLI wall for printing tweets with
+    colors and enhancements in look and feel.
+
+    :cvar colors: Colors of different string categories
+    :ivar printer: Object for printing tweets
+    """
     colors = {
         'author': 'blue',
         'date': 'green',
@@ -100,8 +133,9 @@ class CLIColorfulWall(CLIWall):
         super().__init__(printer)
 
     def print_tweet(self, tweet):
+        """Print single tweet on the wall"""
         self.printer.secho('{}'.format(
-            tweet.get_created().strftime(self.dformat)),
+            tweet.get_created().strftime(self.outformat)),
             fg=self.colors['date'], nl=False
         )
         self.printer.secho(' ({})'.format(tweet.get_url()), fg='magenta')
@@ -113,6 +147,7 @@ class CLIColorfulWall(CLIWall):
         self.printer.echo()
 
     def tweet_highlighter(self, tweet):
+        """Highlight parts of tweet by going thru its entities"""
         text = tweet.get_text()
         result = ""
         entities = []
@@ -152,7 +187,7 @@ class CLIColorfulWall(CLIWall):
 @click.group(name="twitterwall")
 @click.option('--config', '-c', default='config/auth.cfg',
               type=click.File('r'), help='App config file path.')
-@click.version_option(version='0.4', prog_name='TwitterWall')
+@click.version_option(version='0.5', prog_name='PYT TwitterWall')
 @click.pass_context
 def twitter_wall(ctx, config):
     """Twitter Wall for loading and printing desired tweets"""
@@ -223,9 +258,11 @@ def web(ctx, debug, count, interval):
 
 
 def signal_handler(sig, frame):
+    """Simple signal handler to say good bye to the user"""
     print('\nBye! See you soon...')
     sys.exit(0)
 
 
 def main():
+    """Wrapper for launching click.group"""
     twitter_wall(obj={})

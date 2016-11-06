@@ -10,6 +10,7 @@ app = flask.Flask(__name__)
 
 @app.route('/')
 def index():
+    """Landing page with static content"""
     return flask.render_template('index.html')
 
 
@@ -17,6 +18,7 @@ def index():
 @app.route('/q/<query>/<lang>')
 @injector.inject(twitter=TwitterConnection)
 def feed(twitter, query, lang=''):
+    """Feed page displaying tweets by given query (and lang)"""
     params = {
         'q': query,
         'count': app.config['INIT_COUNT'],
@@ -36,6 +38,7 @@ def feed(twitter, query, lang=''):
 @app.route('/api/<lid>/<query>/<lang>')
 @injector.inject(twitter=TwitterConnection)
 def api(twitter, lid, query, lang=''):
+    """API url for providing tweets by AJAX"""
     params = {'q': query, 'since_id': lid, 'include_entities': True}
     if lang != '':
         params['lang'] = lang
@@ -48,6 +51,7 @@ def api(twitter, lid, query, lang=''):
 
 @app.template_filter('author_avatar')
 def author_avatar(tweet):
+    """Filter to show author avatar from tweet"""
     return jinja2.Markup(
         '<img src="{}" alt="{}" class="avatar"/>'.format(
             tweet['user']['profile_image_url'],
@@ -57,6 +61,7 @@ def author_avatar(tweet):
 
 @app.template_filter('author_link')
 def user_link(screen_name):
+    """Filter to show user link from username"""
     return jinja2.Markup(
         '<a href="{}" target="_blank">@{}</a>'.format(
             'https://twitter.com/{}'.format(screen_name),
@@ -66,6 +71,7 @@ def user_link(screen_name):
 
 @app.template_filter('hashtag_link')
 def hashtag_link(hashtag):
+    """Filter to show link from hashtag"""
     return jinja2.Markup(
         '<a href="{}" target="_blank">#{}</a>'.format(
             'https://twitter.com/hashtag/{}'.format(hashtag),
@@ -75,6 +81,7 @@ def hashtag_link(hashtag):
 
 @app.template_filter('media_img')
 def media_img(media, author, id):
+    """Filter to show img media via lightbox with caption"""
     img = '<img src="{}" alt="{}" />'.format(
         media['media_url'], media['display_url']
     )
@@ -86,11 +93,13 @@ def media_img(media, author, id):
 
 @app.template_filter('tweet_date')
 def tweet_date(tweet):
+    """Filter to format tweet created datetime"""
     return tweet.get_created().strftime('%d/%m/%Y %H:%M:%S')
 
 
 @app.template_filter('enhance_text')
 def enhance_text(tweet):
+    """Filter to make URLs for entities in the text of tweet"""
     text = tweet.get_text()
     result = ""
     entities = []
@@ -121,6 +130,7 @@ def enhance_text(tweet):
 
 @app.template_filter('hashtags')
 def hashtags(tweet):
+    """Filter to show list of hashtags from tweet"""
     res = [hashtag_link(h['text']) for h in
            tweet.get_entities_of_type('hashtags')]
     return jinja2.Markup(', '.join(res))
@@ -128,6 +138,7 @@ def hashtags(tweet):
 
 @app.template_filter('mentions')
 def mentions(tweet):
+    """Filter to show list of user mentions from tweet"""
     res = [user_link(m['screen_name']) for m in
            tweet.get_entities_of_type('user_mentions')]
     return jinja2.Markup(', '.join(res))
@@ -135,6 +146,7 @@ def mentions(tweet):
 
 @app.template_filter('medias')
 def medias(tweet):
+    """Filter to show list of medias from tweet"""
     res = [media_img(m, tweet.get_author_nick(), tweet['id'])
            for m in tweet.get_entities_of_type('media')]
     return jinja2.Markup(' '.join(res))
@@ -142,6 +154,7 @@ def medias(tweet):
 
 @app.template_filter('url_link')
 def url_link(url):
+    """Filter to show url link from url"""
     return jinja2.Markup('<a href="{}" target="_blank">{}</a>'.format(
         url['url'],
         url['display_url']
@@ -150,11 +163,13 @@ def url_link(url):
 
 @app.template_filter('urls')
 def urls(tweet):
+    """Filter to show list of URLs from tweet"""
     res = [url_link(u) for u in tweet.get_entities_of_type('urls')]
     return jinja2.Markup(', '.join(res))
 
 
 def configure(binder):
+    """Configure injector binding"""
     binder.bind(
         TwitterConnection,
         to=TwitterConnection(
@@ -166,4 +181,5 @@ def configure(binder):
 
 
 def init_injector():
+    """Start Flask injector for web app"""
     flask_injector.FlaskInjector(app=app, modules=[configure])
